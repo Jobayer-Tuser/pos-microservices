@@ -1,0 +1,119 @@
+services:
+  eureka-server:
+    build:
+      context: .
+      dockerfile: ServiceDiscovery/Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "9010:9010"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      EUREKA_SERVER_HOST: eureka-server
+      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+    depends_on:
+      - eureka-server
+    networks:
+      - microservice-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: UserService/Dockerfile
+    ports:
+      - "9012:9012"
+    environment:
+      DB_HOST: mysql-db
+      DB_PORT: ${MYSQL_DB_PORT}
+      DB_NAME: ${MYSQL_DB_NAME}
+      DB_USER: ${MYSQL_DB_USERNAME}
+      DB_PASSWORD: ${MYSQL_DB_PASSWORD}
+      EUREKA_SERVER_HOST: eureka-server
+    depends_on:
+      mysql-db:
+          condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - microservice-network
+    volumes:
+      - ./UserService:/build
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    ports:
+      - "9031:9031"
+    networks:
+      - microservice-network
+    environment:
+      DB_HOST: mysql-db
+      DB_PORT: ${MYSQL_DB_PORT}
+      DB_NAME: ${MYSQL_DB_NAME}
+      DB_USER: ${MYSQL_DB_USERNAME}
+      DB_PASSWORD: ${MYSQL_DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysql-db:
+          condition: service_healthy
+      eureka-server:
+        condition: service_started
+    volumes:
+      - ./AuthService:/build
+
+  postgres-db:
+    image: "postgres:15-alpine"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - microservice-network
+    volumes:
+      - microservice-postgres:/var/lib/postgresql/data
+
+  mysql-db:
+    image: "mysql"
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_DB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+    volumes:
+      - microservice-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -u ${MYSQL_DB_USERNAME} -p${MYSQL_DB_PASSWORD} -e 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  pgAdmin:
+    image: "dpage/pgadmin4"
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: superpass
+    depends_on:
+      - postgres-db
+
+networks:
+  microservice-network:
+    driver: bridge
+
+volumes:
+  microservice-postgres:
+  microservice-mysql:

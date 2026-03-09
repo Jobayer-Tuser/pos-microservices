@@ -1,0 +1,35 @@
+server:
+  port: 9010
+spring:
+  application:
+    name: ApiGateway
+
+#  config:
+#    import: file:.env[.properties]
+
+  jwt:
+    secretKey: ${JWT_SECRET}
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+#          discovery:
+#            locator:
+#              enabled: true
+#              lower-case-service-id: true
+          routes:
+            - id: auth_service
+              uri : lb://AuthService
+              predicates:
+                - Path=/dev/api/v1/auth/**
+
+            - id: user_service
+              uri: lb://UserService
+              predicates:
+                - Path=/dev/api/v1/user/**
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:${EUREKA_SERVER_PORT:8761}/eureka/
