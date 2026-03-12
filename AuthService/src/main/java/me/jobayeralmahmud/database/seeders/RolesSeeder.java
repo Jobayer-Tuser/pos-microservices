@@ -15,7 +15,7 @@ public class RolesSeeder implements Seeder {
 
     @Override
     public void run(){
-        List<String> roles = List.of("users", "Admin", "Editor", "Operator");
+        List<String> roles = List.of("USER", "ADMIN", "EDITOR", "OPERATOR");
         List<Role> roleEntity = roles.stream()
                 .map(Role::new)
                 .toList();

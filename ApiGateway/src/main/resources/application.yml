@@ -23,11 +23,15 @@ spring:
               uri : lb://AuthService
               predicates:
                 - Path=/dev/api/v1/auth/**
+              filters:
+                - Pre
 
             - id: user_service
               uri: lb://UserService
               predicates:
                 - Path=/dev/api/v1/user/**
+              filters:
+                - Pre
 
 eureka:
   client:

@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password.");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Please check your email and password match or not or check the user role and permission assigned or not.");
     }
 
     // Catch-all for unexpected server errors

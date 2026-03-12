@@ -3,18 +3,28 @@ services:
     build:
       context: .
       dockerfile: ServiceDiscovery/Dockerfile
+      target: dev
     ports:
       - "8761:8761"
     networks:
       - microservice-network
+    develop:
+      watch:
+        - path: ./ServiceDiscovery/src
+          action: sync+restart
+          target: /app/ServiceDiscovery/src
+        - path: ./ServiceDiscovery/pom.xml
+          action: rebuild
 
   api-gateway:
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
+      target: dev
     ports:
       - "9010:9010"
     environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
       JWT_SECRET: ${JWT_SECRET}
       EUREKA_SERVER_HOST: eureka-server
       EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
@@ -22,53 +32,96 @@ services:
       - eureka-server
     networks:
       - microservice-network
+    develop:
+      watch:
+        - path: ./ApiGateway/src
+          action: sync+restart
+          target: /app/ApiGateway/src
+        - path: ./ApiGateway/pom.xml
+          action: rebuild
 
   user-service:
     build:
       context: .
       dockerfile: UserService/Dockerfile
+      target: dev
     ports:
       - "9012:9012"
     environment:
       DB_HOST: mysql-db
-      DB_PORT: ${MYSQL_DB_PORT}
+      DB_PORT: 3306
       DB_NAME: ${MYSQL_DB_NAME}
       DB_USER: ${MYSQL_DB_USERNAME}
       DB_PASSWORD: ${MYSQL_DB_PASSWORD}
       EUREKA_SERVER_HOST: eureka-server
+      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
     depends_on:
       mysql-db:
-          condition: service_healthy
+        condition: service_healthy
       eureka-server:
         condition: service_started
     networks:
       - microservice-network
-    volumes:
-      - ./UserService:/build
+    develop:
+      watch:
+        - path: ./UserService/src
+          action: sync+restart
+          target: /app/UserService/src
+        - path: ./UserService/pom.xml
+          action: rebuild
 
   auth-service:
     build:
       context: .
       dockerfile: AuthService/Dockerfile
+      target: dev
     ports:
       - "9031:9031"
-    networks:
-      - microservice-network
     environment:
       DB_HOST: mysql-db
-      DB_PORT: ${MYSQL_DB_PORT}
+      DB_PORT: 3306
       DB_NAME: ${MYSQL_DB_NAME}
       DB_USER: ${MYSQL_DB_USERNAME}
-      DB_PASSWORD: ${MYSQL_DB_PASSWORD}
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       JWT_SECRET: ${JWT_SECRET}
+      DB_PASSWORD: ${MYSQL_DB_PASSWORD}
+      EUREKA_SERVER_HOST: eureka-server
+      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
     depends_on:
       mysql-db:
-          condition: service_healthy
+        condition: service_healthy
       eureka-server:
         condition: service_started
+    networks:
+      - microservice-network
+    develop:
+      watch:
+        - path: ./AuthService/src
+          action: sync+restart
+          target: /app/AuthService/src
+        - path: ./AuthService/pom.xml
+          action: rebuild
+
+  mysql-db:
+    image: "mysql:8.4"
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_DB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
     volumes:
-      - ./AuthService:/build
+      - microservice-mysql:/var/lib/mysql
+    networks:
+      - microservice-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u${MYSQL_DB_USERNAME}", "-p${MYSQL_DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   postgres-db:
     image: "postgres:15-alpine"
@@ -82,24 +135,6 @@ services:
     volumes:
       - microservice-postgres:/var/lib/postgresql/data
 
-  mysql-db:
-    image: "mysql"
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_DB_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DB_NAME}
-    volumes:
-      - microservice-mysql:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -u ${MYSQL_DB_USERNAME} -p${MYSQL_DB_PASSWORD} -e 'SELECT 1'"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 45s
-
   pgAdmin:
     image: "dpage/pgadmin4"
     ports:
@@ -109,6 +144,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: superpass
     depends_on:
       - postgres-db
+    networks: # Added network so it can actually see postgres-db
+      - microservice-network
 
 networks:
   microservice-network:

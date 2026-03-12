@@ -9,9 +9,9 @@ spring:
     name: AuthService
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}
-    username: ${DB_USER}
-    password:  ${DB_PASSWORD}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:pos_auth}
+    username: ${DB_USER:root}
+    password:  ${DB_PASSWORD:RootPass!@}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

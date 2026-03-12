@@ -51,9 +51,9 @@ public class AuthController extends Controller {
 
     @GetMapping(Routes.VALIDATED_PROFILE)
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<HashMap<String, Object>>> getAuthenticatedUserProfile(@AuthenticationPrincipal SecuredUser user, @RequestHeader("X-User-Role") String roleName) {
+    public ResponseEntity<ApiResponse<HashMap<String, Object>>> getAuthenticatedUserProfile(@AuthenticationPrincipal SecuredUser user) {
         var data = new HashMap<String, Object>();
-        data.put("role", roleName);
+        data.put("role", user.getAuthorities());
         return ok(data, "Successfully received the data");
     }
 }

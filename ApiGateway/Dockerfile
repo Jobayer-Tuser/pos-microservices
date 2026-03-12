@@ -1,7 +1,7 @@
 # Stage 1: Download the dependencies
 FROM maven:3.9.12-eclipse-temurin-25-alpine AS dependencies
 
-WORKDIR /build
+WORKDIR /app
 COPY pom.xml .
 COPY local-maven-repo local-maven-repo
 COPY ApiGateway/pom.xml ApiGateway/pom.xml
@@ -10,6 +10,12 @@ COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl ApiGateway -am
+
+# Stage 2: Development (For Hot-Reloading)
+FROM dependencies AS dev
+WORKDIR /app
+COPY ApiGateway ./ApiGateway
+CMD ["mvn", "-pl", "ApiGateway", "spring-boot:run"]
 
 # Stage 2: Build the application
 FROM dependencies AS builder
@@ -20,7 +26,6 @@ RUN mvn -B -e clean package -pl ApiGateway -am -DskipTests
 FROM eclipse-temurin:25-jre-alpine as runtime
 WORKDIR /app
 COPY --from=builder /build/ApiGateway/target/*.jar api-gateway.jar
-
-EXPOSE 9010
-
 ENTRYPOINT ["java", "-jar", "api-gateway.jar"]
+
+# "-Dspring-boot.run.profiles=dev", "-Dspring.devtools.restart.enabled=true", "-Dspring.devtools.livereload.enabled=true"

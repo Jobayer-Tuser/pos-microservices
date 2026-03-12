@@ -1,7 +1,7 @@
 # Stage 1: Download the dependencies
 FROM maven:3.9.12-eclipse-temurin-25-alpine AS dependencies
 
-WORKDIR /build
+WORKDIR /app
 COPY pom.xml .
 COPY local-maven-repo local-maven-repo
 COPY ApiGateway/pom.xml ApiGateway/pom.xml
@@ -10,6 +10,12 @@ COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl UserService -am
+
+# Stage 2: Development (For Hot-Reloading)
+FROM dependencies AS dev
+WORKDIR /app
+COPY UserService ./UserService
+CMD ["mvn", "-pl", "UserService", "spring-boot:run"]
 
 # Stage 2: Build the application
 FROM dependencies AS builder
