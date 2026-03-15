@@ -11,8 +11,6 @@
     </parent>
 
     <artifactId>UserService</artifactId>
-    <packaging>jar</packaging>
-    <name>user-service</name>
 
     <dependencies>
         <dependency>
@@ -58,6 +56,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>me.jobayeralmahmud</groupId>
+            <artifactId>ServiceLibrary</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <build>

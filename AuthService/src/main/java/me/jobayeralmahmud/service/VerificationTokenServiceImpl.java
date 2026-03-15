@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.entity.User;
 import me.jobayeralmahmud.entity.VerificationToken;
 import me.jobayeralmahmud.enums.VerificationType;
-import me.jobayeralmahmud.exception.ResourcesNotFoundException;
+import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import me.jobayeralmahmud.jwt.Jwt;
 import me.jobayeralmahmud.jwt.JwtService;
 import me.jobayeralmahmud.repository.VerificationTokenRepository;

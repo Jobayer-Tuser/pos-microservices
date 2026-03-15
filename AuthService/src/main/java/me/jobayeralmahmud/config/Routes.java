@@ -15,6 +15,6 @@ public class Routes {
     public static final String VALIDATED_PROFILE = "/validated/profile";
     public static final String SEED_PERMISSIONS = "/seed-permissions";
     public static final String SEED_ROLES_PERMISSIONS = "/seed-roles-permissions";
-    public static final String AUTH_SERVICE = DEVELOPER.concat("/api").concat(VERSION).concat("/auth");
+    public static final String AUTH_SERVICE = DEVELOPER + "/api" + VERSION + "/auth";
 
 }

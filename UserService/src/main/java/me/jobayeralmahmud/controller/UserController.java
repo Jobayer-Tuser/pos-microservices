@@ -8,14 +8,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(Routes.USER_SERVICE)
 public class UserController {
 
     @GetMapping
-//    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> getUser(){
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<String>> getUser(@RequestHeader("X-User-Role") String role, @RequestHeader("X-User-Permissions") List<String> permissions) {
         String hellp  = "hello";
-        return ResponseEntity.ok(hellp);
+        return ResponseEntity.ok(permissions);
     }
 }

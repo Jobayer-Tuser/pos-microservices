@@ -13,6 +13,9 @@ services:
         - path: ./ServiceDiscovery/src
           action: sync+restart
           target: /app/ServiceDiscovery/src
+        - path: ./ServiceLibrary/src
+          action: sync+restart
+          target: /app/ServiceLibrary/src
         - path: ./ServiceDiscovery/pom.xml
           action: rebuild
 
@@ -37,6 +40,9 @@ services:
         - path: ./ApiGateway/src
           action: sync+restart
           target: /app/ApiGateway/src
+        - path: ./ServiceLibrary/src
+          action: sync+restart
+          target: /app/ServiceLibrary/src
         - path: ./ApiGateway/pom.xml
           action: rebuild
 
@@ -68,6 +74,9 @@ services:
         - path: ./UserService/src
           action: sync+restart
           target: /app/UserService/src
+        - path: ./ServiceLibrary/src
+          action: sync+restart
+          target: /app/ServiceLibrary/src
         - path: ./UserService/pom.xml
           action: rebuild
 
@@ -100,6 +109,9 @@ services:
         - path: ./AuthService/src
           action: sync+restart
           target: /app/AuthService/src
+        - path: ./ServiceLibrary/src
+          action: sync+restart
+          target: /app/ServiceLibrary/src
         - path: ./AuthService/pom.xml
           action: rebuild
 

@@ -3,22 +3,29 @@ FROM maven:3.9.12-eclipse-temurin-25-alpine AS dependencies
 
 WORKDIR /app
 COPY pom.xml .
-COPY local-maven-repo local-maven-repo
+
 COPY ApiGateway/pom.xml ApiGateway/pom.xml
 COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
+COPY ServiceLibrary/pom.xml ServiceLibrary/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl UserService -am
 
 # Stage 2: Development (For Hot-Reloading)
 FROM dependencies AS dev
 WORKDIR /app
+COPY ServiceLibrary ./ServiceLibrary
 COPY UserService ./UserService
-CMD ["mvn", "-pl", "UserService", "spring-boot:run"]
+
+#CMD ["mvn", "-pl", "ServiceDiscovery", "spring-boot:run"]
+
+# Install ServiceLibrary into the local Maven repo first, then run UserService
+CMD mvn install -pl ServiceLibrary -am && mvn spring-boot:run -pl UserService
 
 # Stage 2: Build the application
 FROM dependencies AS builder
+COPY ServiceLibrary/src ServiceLibrary/src
 COPY UserService/src UserService/src
 RUN mvn -B -e clean package -pl UserService -am -DskipTests
 
