@@ -6,22 +6,18 @@ import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.config.Routes;
 import me.jobayeralmahmud.dto.request.LoginRequest;
 import me.jobayeralmahmud.dto.request.CreateUserRequest;
-import me.jobayeralmahmud.dto.response.ApiResponse;
 import me.jobayeralmahmud.dto.response.UserDto;
 import me.jobayeralmahmud.jwt.JwtResponse;
+import me.jobayeralmahmud.library.response.ApiResponse;
 import me.jobayeralmahmud.service.SecuredUser;
 import me.jobayeralmahmud.service.AuthService;
 import me.jobayeralmahmud.service.UserService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(Routes.AUTH_SERVICE)
@@ -38,7 +34,7 @@ public class AuthController extends Controller {
     }
 
     @PostMapping(Routes.REGISTER)
-    public ResponseEntity<ApiResponse<UserDto>> register(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<ApiResponse<UserDto>> register(@RequestBody CreateUserRequest request) {
         UserDto user = userService.createUser(request);
         return created(user, "Successfully created user please check your email to email verify!");
     }

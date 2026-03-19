@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,8 +31,7 @@ public class UserMapper
     {
         return new UserDto(
             user.getId(),
-            user.getEmail(),
-            user.getRole().getName()
+            user.getEmail()
         );
     }
 
@@ -41,8 +41,7 @@ public class UserMapper
             .stream()
             .map(user -> new UserDto(
                 user.getId(),
-                user.getEmail(),
-                user.getRole().getName()
+                user.getEmail()
             ))
             .toList();
     }

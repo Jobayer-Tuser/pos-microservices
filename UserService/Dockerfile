@@ -8,24 +8,24 @@ COPY ApiGateway/pom.xml ApiGateway/pom.xml
 COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
-COPY ServiceLibrary/pom.xml ServiceLibrary/pom.xml
+COPY UtilityResource/pom.xml UtilityResource/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl UserService -am
 
 # Stage 2: Development (For Hot-Reloading)
 FROM dependencies AS dev
 WORKDIR /app
-COPY ServiceLibrary ./ServiceLibrary
+COPY UtilityResource ./UtilityResource
 COPY UserService ./UserService
 
 #CMD ["mvn", "-pl", "ServiceDiscovery", "spring-boot:run"]
 
-# Install ServiceLibrary into the local Maven repo first, then run UserService
-CMD mvn install -pl ServiceLibrary -am && mvn spring-boot:run -pl UserService
+# Install UtilityResource into the local Maven repo first, then run UserService
+CMD mvn install -pl UtilityResource -am && mvn spring-boot:run -pl UserService
 
 # Stage 2: Build the application
 FROM dependencies AS builder
-COPY ServiceLibrary/src ServiceLibrary/src
+COPY UtilityResource/src UtilityResource/src
 COPY UserService/src UserService/src
 RUN mvn -B -e clean package -pl UserService -am -DskipTests
 

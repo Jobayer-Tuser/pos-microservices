@@ -20,11 +20,3 @@ public class RouteValidator {
             request -> openApiEndPoints.stream()
                     .noneMatch(uri -> request.getURI().getPath().contains(uri));
 }
-
-
-/**
- *  "/dev/api/v1/auth/login",
- *             "/dev/api/v1/auth/register",
- *             "/dev/api/v1/auth/token-refresh",
- *             "/eureka"
- */

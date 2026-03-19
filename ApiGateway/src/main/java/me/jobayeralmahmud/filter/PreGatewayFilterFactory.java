@@ -1,7 +1,7 @@
 package me.jobayeralmahmud.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jobayeralmahmud.library.exceptions.BearerTokenException;
+import me.jobayeralmahmud.exceptions.BearerTokenException;
 import me.jobayeralmahmud.service.Jwt;
 import me.jobayeralmahmud.service.JwtService;
 import org.jspecify.annotations.NonNull;
@@ -26,9 +26,9 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private final RouteValidator routeValidator;
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String X_USER_ID = "X-User-Id";
     private static final String X_USER_ROLE = "X-User-Role";
     private static final String X_USER_PERMISSIONS = "X-User-Permissions";
-
 
     public PreGatewayFilterFactory(RouteValidator routeValidator, JwtService jwtService) {
         super(Config.class);
@@ -71,6 +71,8 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
 
         Jwt jwt             = jwtService.parseToken(token);
         var role            = jwt.getRole();
+        var userId          = String.valueOf(jwt.getUserId());
+        System.out.println(userId);
         var permissions     = jwt.getUserPermissions();
         var requestBuilder  = exchange.getRequest().mutate();
 
@@ -79,6 +81,10 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
         }
         if (permissions != null && !permissions.isEmpty()) {
             requestBuilder.header(X_USER_PERMISSIONS, permissions);
+        }
+
+        if (userId != null && !userId.isEmpty()) {
+            requestBuilder.header(X_USER_ID, userId);
         }
 
         var mutatedRequest = requestBuilder.build();

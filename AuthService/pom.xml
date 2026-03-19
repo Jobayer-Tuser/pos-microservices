@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>me.jobayeralmahmud</groupId>
-            <artifactId>ServiceLibrary</artifactId>
+            <artifactId>UtilityResource</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

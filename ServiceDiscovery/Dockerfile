@@ -8,7 +8,7 @@ COPY ApiGateway/pom.xml ApiGateway/pom.xml
 COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
-COPY ServiceLibrary/pom.xml ServiceLibrary/pom.xml
+COPY UtilityResource/pom.xml UtilityResource/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl ServiceDiscovery -am
 
@@ -19,12 +19,12 @@ COPY ServiceDiscovery ./ServiceDiscovery
 CMD ["mvn", "-pl", "ServiceDiscovery", "spring-boot:run"]
 
 # if need to load service library first, then run service discovery
-#COPY ServiceLibrary ./ServiceLibrary
-#CMD mvn install -pl ServiceLibrary -am && mvn spring-boot:run -pl UserService
+#COPY UtilityResource ./UtilityResource
+#CMD mvn install -pl UtilityResource -am && mvn spring-boot:run -pl UserService
 
 # Stage 2: Build the application
 FROM dependencies AS builder
-COPY ServiceLibrary/src ServiceLibrary/src
+COPY UtilityResource/src UtilityResource/src
 COPY ServiceDiscovery/src ServiceDiscovery/src
 RUN mvn -B -e clean package -pl ServiceDiscovery -am -DskipTests
 

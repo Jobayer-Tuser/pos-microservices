@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.dto.request.CreateUserRequest;
 import me.jobayeralmahmud.dto.request.UpdateUserRequest;
 import me.jobayeralmahmud.dto.response.UserDto;
+import me.jobayeralmahmud.entity.Role;
 import me.jobayeralmahmud.entity.User;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import me.jobayeralmahmud.mapper.UserMapper;
@@ -40,8 +41,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(CreateUserRequest request) {
         log.debug("Creating user with email: {}", request.email());
+        Role role = null;
 
-        var role        = roleRepository.getReferenceById(request.roleId());
+        if (request.roleId() != null ) {
+           role = roleRepository.getReferenceById(request.roleId());
+        }
         var user        = userMapper.toCreateEntity(request, role);
         var storedUser  = userRepository.save(user);
 

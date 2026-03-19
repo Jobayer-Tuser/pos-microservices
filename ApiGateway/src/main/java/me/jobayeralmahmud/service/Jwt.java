@@ -20,8 +20,8 @@ public class Jwt {
         return claims.getExpiration().before(new Date());
     }
 
-    public UUID getUserId() {
-        return UUID.fromString(claims.getSubject());
+    public String getUserId() {
+        return UUID.fromString(claims.getSubject()).toString();
     }
 
     public String getUserPermissions() {
@@ -38,7 +38,7 @@ public class Jwt {
     }
 
     public String getRole(){
-        return claims.get("role", String.class);
+        return String.valueOf(claims.get("role", String.class));
     }
 
     public String toString() {

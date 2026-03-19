@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="@localhost(Docker)" uuid="6638b1b1-4d0f-4682-a0fe-82b27100be58">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <remarks>MySql (Docker Image)</remarks>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3307/</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="pos_auth@localhost" uuid="e7bff384-aeb8-4f10-9f71-bb1ddaaef1c3">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
@@ -16,6 +8,13 @@
       <remarks>$PROJECT_DIR$/AuthService/src/main/resources/application.yml</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/pos_auth</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="@localhost" uuid="eebcf553-8b1b-4e1f-8049-945d76952bc4">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3307</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

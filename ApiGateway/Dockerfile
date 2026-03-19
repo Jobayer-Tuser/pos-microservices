@@ -8,22 +8,22 @@ COPY ApiGateway/pom.xml ApiGateway/pom.xml
 COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
-COPY ServiceLibrary/pom.xml ServiceLibrary/pom.xml
+COPY UtilityResource/pom.xml UtilityResource/pom.xml
 
 RUN mvn -B -e dependency:go-offline -pl ApiGateway -am
 
 # Stage 2: Development (For Hot-Reloading)
 FROM dependencies AS dev
 WORKDIR /app
-COPY ServiceLibrary ./ServiceLibrary
+COPY UtilityResource ./UtilityResource
 COPY ApiGateway ./ApiGateway
 #CMD ["mvn", "-pl", "ApiGateway", "spring-boot:run"]
-CMD mvn install -pl ServiceLibrary -am && mvn spring-boot:run -pl ApiGateway
+CMD mvn install -pl UtilityResource -am && mvn spring-boot:run -pl ApiGateway
 
 
 # Stage 2: Build the application
 FROM dependencies AS builder
-COPY ServiceLibrary/src ServiceLibrary/src
+COPY UtilityResource/src UtilityResource/src
 COPY ApiGateway/src ApiGateway/src
 RUN mvn -B -e clean package -pl ApiGateway -am -DskipTests
 
