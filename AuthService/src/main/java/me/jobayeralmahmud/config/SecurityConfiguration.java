@@ -3,6 +3,7 @@ package me.jobayeralmahmud.config;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.enums.UserRole;
 import me.jobayeralmahmud.jwt.JwtAuthFilter;
+import me.jobayeralmahmud.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,39 +27,50 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity security, JwtAuthFilter jwtAuthFilter) {
-        security
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(manageSession
-                        -> manageSession.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize
-                        -> authorize.requestMatchers(HttpMethod.POST,
-                                    "/dev/api/v1/auth/login",
-                                    "/dev/api/v1/auth/register",
-                                    "/dev/api/v1/auth/token-refresh").permitAll()
-                        .requestMatchers("/api/roles/**").hasRole(UserRole.ADMIN.name())
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-                    exception.accessDeniedHandler(((request, response, accessDeniedException)
-                            -> response.setStatus(HttpStatus.FORBIDDEN.value())));
-                });
+        private final CustomLogoutHandler logoutHandler;
+        private final CustomAccessDeniedHandler accessDeniedHandler;
+        private final CustomLogoutSuccessHandler logoutSuccessHandler;
 
-        return security.build();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
+                        UserDetailsServiceImpl userDetailsServiceImpl) {
+                return http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .authorizeHttpRequests(req -> req
+                                                .requestMatchers(HttpMethod.POST,
+                                                                "/dev/api/v1/auth/login",
+                                                                "/dev/api/v1/auth/register",
+                                                                "/dev/api/v1/auth/token-refresh")
+                                                .permitAll()
+                                                .requestMatchers("/api/roles/**").hasRole(UserRole.ADMIN.name())
+                                                .anyRequest()
+                                                .authenticated())
+                                .userDetailsService(userDetailsServiceImpl)
+                                .exceptionHandling(e -> e
+                                                .accessDeniedHandler(accessDeniedHandler)
+                                                .authenticationEntryPoint(
+                                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .logout(l -> l
+                                                .logoutUrl("/dev/api/v1/auth/logout")
+                                                .deleteCookies("refreshToken")
+                                                .addLogoutHandler(logoutHandler)
+                                                .logoutSuccessHandler(logoutSuccessHandler))
+                                .build();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder()
-    {
-        return new BCryptPasswordEncoder(12);
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder(12);
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        var provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
+                        PasswordEncoder passwordEncoder) {
+                var provider = new DaoAuthenticationProvider(userDetailsService);
+                provider.setPasswordEncoder(passwordEncoder);
+                return new ProviderManager(provider);
+        }
 }

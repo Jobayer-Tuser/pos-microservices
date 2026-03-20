@@ -1,13 +1,13 @@
 package me.jobayeralmahmud.service;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.config.Routes;
 import me.jobayeralmahmud.dto.request.LoginRequest;
 import me.jobayeralmahmud.entity.JwtToken;
 import me.jobayeralmahmud.entity.User;
-import me.jobayeralmahmud.jwt.Jwt;
 import me.jobayeralmahmud.jwt.JwtConfig;
 import me.jobayeralmahmud.jwt.JwtService;
 import me.jobayeralmahmud.repository.JwtTokenRepository;
@@ -31,7 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenRepository jwtTokenRepository;
+    private final JwtTokenRepository tokenRepository;
 
     public UUID getCurrentUserId() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -57,21 +57,19 @@ public class AuthService {
         var refreshToken = jwtService.generateRefreshToken(user);
 
         revokeAllTokensByUser(user);
-        storeUserToken(refreshToken.toString(), user);
-        setCookie(refreshToken.toString(), response);
-        return accessToken.toString();
+        storeUserToken(refreshToken, user);
+        setCookie(refreshToken, response);
+        return accessToken;
     }
 
     public String refreshToken(String refreshToken) {
-        Jwt jwt = jwtService.parseToken(refreshToken);
 
-        if (jwt == null || jwt.isExpire()) {
-            throw new BadCredentialsException("Jwt token is expired or not valid please provide valid token");
+        if (jwtService.isTokenExpired(refreshToken)) {
+             throw new BadCredentialsException("Jwt token is expired or not valid please provide valid token");
         }
 
-        var user = userService.getUserById(jwt.getUserId());
-        var accessToken = jwtService.generateAccessToken(user);
-        return accessToken.toString();
+        var user = userService.getUserById(jwtService.extractUserId(refreshToken));
+        return jwtService.generateAccessToken(user);
     }
 
     private void setCookie(String refreshToken, HttpServletResponse response) {
@@ -100,18 +98,18 @@ public class AuthService {
                 .isLoggedOut(false)
                 .user(user)
                 .build();
-        jwtTokenRepository.save(buildToken);
-
+        tokenRepository.save(buildToken);
     }
 
     private void revokeAllTokensByUser(User user) {
-        List<JwtToken> validTokens = jwtTokenRepository.findAllJwtTokenByUser(user.getId());
+        List<JwtToken> validTokens = tokenRepository.findAllJwtTokenByUser(user.getId());
+
         if (!validTokens.isEmpty()) {
             validTokens.forEach(token -> {
                 token.setLoggedOut(true);
             });
         }
 
-        jwtTokenRepository.saveAll(validTokens);
+        tokenRepository.saveAll(validTokens);
     }
 }

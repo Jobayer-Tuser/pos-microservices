@@ -4,6 +4,7 @@ import me.jobayeralmahmud.dto.request.CreateUserRequest;
 import me.jobayeralmahmud.dto.request.UpdateUserRequest;
 import me.jobayeralmahmud.dto.response.UserDto;
 import me.jobayeralmahmud.entity.User;
+import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public interface UserService {
      *
      * @param email the user email
      * @return the user DTO
-     * @throws org.booking.exceptions.ResourcesNotFoundException if user not found
+     * @throws ResourcesNotFoundException if user not found
      */
     User getUserByEmail(String email);
 
@@ -50,7 +51,7 @@ public interface UserService {
      * @param id the user ID
      * @param request the update request
      * @return the updated user DTO
-     * @throws org.booking.exceptions.ResourcesNotFoundException if user not found
+     * @throws ResourcesNotFoundException if user not found
      */
     @Transactional
     UserDto updateUser(UUID id, UpdateUserRequest request);

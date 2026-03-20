@@ -82,11 +82,12 @@ public class SecuredUser implements UserDetails {
     }
 
     public String getRoleName() {
-        return authorities.stream().map(GrantedAuthority::getAuthority)
+        return authorities.stream()
+                .map(GrantedAuthority::getAuthority)
                 .filter(Objects::nonNull)
                 .filter(authorities -> authorities.startsWith("ROLE_"))
                 .findFirst()
-                .get();
+                .orElse("ROLE_USER");
     }
 
     public List<String> getPermissionNames() {

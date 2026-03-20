@@ -5,7 +5,6 @@ import me.jobayeralmahmud.entity.User;
 import me.jobayeralmahmud.entity.VerificationToken;
 import me.jobayeralmahmud.enums.VerificationType;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
-import me.jobayeralmahmud.jwt.Jwt;
 import me.jobayeralmahmud.jwt.JwtService;
 import me.jobayeralmahmud.repository.VerificationTokenRepository;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
-    private final JwtService jwtService;
     private final VerificationTokenRepository tokenRepository;
 
     @Override
@@ -32,7 +30,6 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Override
     public UUID updateVerificationTokenStatus(String token) {
-        Jwt parseToken = jwtService.parseToken(token);
 
         VerificationToken confirmationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourcesNotFoundException("Token not found"));

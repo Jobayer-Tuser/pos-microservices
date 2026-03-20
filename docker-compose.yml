@@ -163,6 +163,17 @@ services:
     networks:
       - microservice-network
 
+  redis:
+    image: "redis:8.6-alpine"
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    networks:
+      - microservice-network
+    volumes:
+      - microservice-redis:/data
+
 networks:
   microservice-network:
     driver: bridge
@@ -170,3 +181,4 @@ networks:
 volumes:
   microservice-postgres:
   microservice-mysql:
+  microservice-redis:

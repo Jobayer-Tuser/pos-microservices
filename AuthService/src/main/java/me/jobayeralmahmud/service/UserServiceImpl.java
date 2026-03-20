@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * Implementation of UserService focusing on core CRUD operations.
  * Email verification is handled by UserVerificationService.
- * Authentication is handled by CustomUserDetailsService.
+ * Authentication is handled by UserDetailsServiceImpl.
  * Pagination queries are handled by UserQueryService.
  */
 @Slf4j
@@ -91,9 +91,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         String.format("User not found with ID: %d", id)));
 
-
         user.setEmail(request.email());
-
         var savedUser = userRepository.save(user);
 
         log.info("User updated successfully with ID: {}", id);

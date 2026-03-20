@@ -6,38 +6,34 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.entity.Permission;
 import me.jobayeralmahmud.entity.User;
+import me.jobayeralmahmud.repository.JwtTokenRepository;
 import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
     private final JwtConfig config;
+    private final JwtTokenRepository repository;
 
-    public Jwt generateAccessToken(User user) {
+    public String generateAccessToken(User user) {
         return generateToken(user, config.accessTokenExpiration());
     }
 
-    public Jwt generateRefreshToken(User user) {
+    public String generateRefreshToken(User user) {
         return generateToken(user, config.refreshTokenExpiration());
     }
 
-    public Jwt parseToken(String token) {
-        try {
-            var claims = extractAllClaims(token);
-            return new Jwt(claims, encryptSecreteKey());
-        } catch (JwtException exception){
-            return null;
-        }
+    public UUID extractUserId(String token) {
+        return extractClaim(token, claims -> UUID.fromString(claims.getSubject()));
     }
 
     public String extractUserEmail(String token) {
@@ -48,34 +44,31 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    public List<String> extractUserPermissions(String token) {
-        return extractClaim(token, claims -> claims.get("permissions", List.class));
+    public String extractUserPermissions(String token) {
+        return extractClaim(token, claims -> claims.get("permissions", String.class));
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public boolean isValidToken(String token, UserDetails user) {
+        var email = extractUserEmail(token);
+        var isValidToken = repository.findByToken(token)
+                .map( t -> !t.isLoggedOut()).orElse(false);
+        return (email.equals(user.getUsername()) && !isTokenExpired(token) && isValidToken);
     }
 
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    public boolean validateToken(String token, User user) {
-        String email = extractUserEmail(token);
-        return (email.equals(user.getEmail()) && !isTokenExpired(token));
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
-    public UUID extractUserId(String token) {
-        return extractClaim(token, claims -> UUID.fromString(claims.getSubject()));
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private  <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private SecretKey encryptSecreteKey()
-    {
+    private SecretKey encryptSecreteKey()  {
         byte [] keyBytes = Decoders.BASE64.decode(config.secretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -101,8 +94,8 @@ public class JwtService {
 
     private static Claims claimBuilder(User user) {
         return Jwts.claims()
-                .add("email",  user.getEmail())
-                .add("role",  user.getRole().getName())
+                .add("email", user.getEmail())
+                .add("role", user.getRole().getName())
                 .add("permissions", getPermissions(user))
                 .build();
     }

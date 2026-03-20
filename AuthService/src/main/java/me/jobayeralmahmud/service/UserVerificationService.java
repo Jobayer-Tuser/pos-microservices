@@ -35,7 +35,7 @@ public class UserVerificationService {
     public String generateVerificationToken(User user) {
         log.debug("Generating verification token for user ID: {}", user.getId());
 
-        String jwtToken = jwtService.generateAccessToken(user).toString();
+        String jwtToken = jwtService.generateAccessToken(user);
         verificationTokenService.addVerificationToken(user, jwtToken);
 
         log.info("Verification token generated for user ID: {}", user.getId());

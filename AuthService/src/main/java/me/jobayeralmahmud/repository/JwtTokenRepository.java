@@ -14,9 +14,9 @@ public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
 
 
     @Query("""
-        SELECT jt FROM JwtToken jt inner join jt.user u
-            on jt.user.id = u.id
-        WHERE jt.user.id = :userId AND jt.isLoggedOut = false
+        SELECT t FROM JwtToken t inner join t.user u
+            on t.user.id = u.id
+        WHERE t.user.id = :userId AND t.isLoggedOut = false
     """)
     List<JwtToken> findAllJwtTokenByUser(UUID userId);
 
