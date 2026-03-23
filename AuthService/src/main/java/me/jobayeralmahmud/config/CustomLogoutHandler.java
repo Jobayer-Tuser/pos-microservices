@@ -3,7 +3,8 @@ package me.jobayeralmahmud.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.repository.JwtTokenRepository;
+import me.jobayeralmahmud.jwt.JwtService;
+import me.jobayeralmahmud.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler {
 
-    private final JwtTokenRepository tokenRepository;
+    private final RedisService redisService;
+    private final JwtService jwtService;
 
     @Override
     public void logout(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -28,15 +30,14 @@ public class CustomLogoutHandler implements LogoutHandler {
         if (Optional.ofNullable(token).isEmpty())
             return;
 
-        setTokenExpiration(token);
+        setTokenToBlacklist(token);
         clearRefreshTokenCookie(request, response);
     }
 
-    private void setTokenExpiration(String token) {
-        tokenRepository.findByToken(token).ifPresent(t -> {
-            t.setLoggedOut(true);
-            tokenRepository.save(t);
-        });
+    private void setTokenToBlacklist(String token) {
+        var jti = jwtService.extractJti(token);
+        var remainingTime = jwtService.getRemainingExpirationTime(token);
+        redisService.addToBlacklist(jti, remainingTime);
     }
 
     private @Nullable String extractTokenFromRequestHeader(HttpServletRequest request) {

@@ -1,16 +1,13 @@
 package me.jobayeralmahmud.service;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.config.Routes;
 import me.jobayeralmahmud.dto.request.LoginRequest;
-import me.jobayeralmahmud.entity.JwtToken;
 import me.jobayeralmahmud.entity.User;
 import me.jobayeralmahmud.jwt.JwtConfig;
 import me.jobayeralmahmud.jwt.JwtService;
-import me.jobayeralmahmud.repository.JwtTokenRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,7 +27,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenRepository tokenRepository;
+    private final RedisService redisService;
 
     public UUID getCurrentUserId() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -93,23 +89,11 @@ public class AuthService {
     }
 
     private void storeUserToken(String token, User user) {
-        var buildToken = JwtToken.builder()
-                .token(token)
-                .isLoggedOut(false)
-                .user(user)
-                .build();
-        tokenRepository.save(buildToken);
+        long expirationTime = jwtService.getRemainingExpirationTime(token);
+        redisService.addToBlacklist(jwtService.extractJti(token), expirationTime);
     }
 
     private void revokeAllTokensByUser(User user) {
-        List<JwtToken> validTokens = tokenRepository.findAllJwtTokenByUser(user.getId());
 
-        if (!validTokens.isEmpty()) {
-            validTokens.forEach(token -> {
-                token.setLoggedOut(true);
-            });
-        }
-
-        tokenRepository.saveAll(validTokens);
     }
 }

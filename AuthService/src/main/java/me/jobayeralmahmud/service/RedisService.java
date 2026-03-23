@@ -11,13 +11,17 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
 
     private final StringRedisTemplate redisTemplate;
+    private static final String BLACKLIST_PREFIX = "blacklist:";
 
-    public boolean hasToken(String token) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
+    public void addToBlacklist(String jti, long ttl) {
+        setToken(BLACKLIST_PREFIX + jti, ttl);
     }
 
-    public void setToken(String token, String value, long ttl, TimeUnit unit) {
-        redisTemplate.opsForValue().set(token, value, ttl, unit);
+    public boolean isBlackListed(String jti) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + jti));
     }
 
+    private void setToken(String key, long ttl) {
+        redisTemplate.opsForValue().set(key, "revoked", ttl, TimeUnit.MILLISECONDS);
+    }
 }

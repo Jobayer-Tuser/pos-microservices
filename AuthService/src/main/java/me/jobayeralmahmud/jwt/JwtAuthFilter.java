@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final RedisService redisService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -35,8 +37,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         var token = authHeader.replace("Bearer ", "");
+        var jti   = jwtService.extractJti(token);
 
-        if (jwtService.isTokenExpired(token)) {
+        if (jwtService.isTokenExpired(token) && redisService.isBlackListed(jti)) {
             filterChain.doFilter(request, response);
             return;
         }
