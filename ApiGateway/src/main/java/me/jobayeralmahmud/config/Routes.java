@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.filter;
+package me.jobayeralmahmud.config;
 
 public class Routes {
     public static final String EUREKA_SERVER = "/eureka";

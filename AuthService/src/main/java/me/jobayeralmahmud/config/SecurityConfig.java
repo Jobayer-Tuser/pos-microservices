@@ -35,30 +35,30 @@ public class SecurityConfiguration {
         public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
                         UserDetailsServiceImpl userDetailsServiceImpl) {
                 return http
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(req -> req
-                                                .requestMatchers(HttpMethod.POST,
-                                                                "/dev/api/v1/auth/login",
-                                                                "/dev/api/v1/auth/register",
-                                                                "/dev/api/v1/auth/token-refresh")
-                                                .permitAll()
-                                                .requestMatchers("/api/roles/**").hasRole(UserRole.ADMIN.name())
-                                                .anyRequest()
-                                                .authenticated())
-                                .userDetailsService(userDetailsServiceImpl)
-                                .exceptionHandling(e -> e
-                                                .accessDeniedHandler(accessDeniedHandler)
-                                                .authenticationEntryPoint(
-                                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .logout(l -> l
-                                                .logoutUrl("/dev/api/v1/auth/logout")
-                                                .deleteCookies("refreshToken")
-                                                .addLogoutHandler(logoutHandler)
-                                                .logoutSuccessHandler(logoutSuccessHandler))
-                                .build();
+                        .csrf(AbstractHttpConfigurer::disable)
+                        .authorizeHttpRequests(req -> req
+                                .requestMatchers(HttpMethod.POST,
+                                        "/dev/api/v1/auth/login",
+                                        "/dev/api/v1/auth/register",
+                                        "/dev/api/v1/auth/token-refresh")
+                                .permitAll()
+                                .requestMatchers("/api/roles/**").hasRole(UserRole.ADMIN.name())
+                                .anyRequest()
+                                .authenticated())
+                        .userDetailsService(userDetailsServiceImpl)
+                        .exceptionHandling(e -> e
+                                .accessDeniedHandler(accessDeniedHandler)
+                                .authenticationEntryPoint(
+                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                        .sessionManagement(session -> session
+                                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                        .logout(l -> l
+                                .logoutUrl("/dev/api/v1/auth/logout")
+                                .deleteCookies("refreshToken")
+                                .addLogoutHandler(logoutHandler)
+                                .logoutSuccessHandler(logoutSuccessHandler))
+                        .build();
         }
 
         @Bean

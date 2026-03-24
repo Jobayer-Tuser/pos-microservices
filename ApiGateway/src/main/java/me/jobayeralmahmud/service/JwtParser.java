@@ -1,24 +1,16 @@
 package me.jobayeralmahmud.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class Jwt {
+public class JwtParser {
 
     private final Claims claims;
-    private final SecretKey secretKey;
-
-    public boolean isExpire() {
-        return claims.getExpiration().before(new Date());
-    }
 
     public String getUserId() {
         return UUID.fromString(claims.getSubject()).toString();
@@ -38,13 +30,6 @@ public class Jwt {
     }
 
     public String getRole(){
-        return String.valueOf(claims.get("role", String.class));
-    }
-
-    public String toString() {
-        return Jwts.builder()
-                .claims(claims)
-                .signWith(secretKey)
-                .compact();
+        return claims.get("role", String.class);
     }
 }

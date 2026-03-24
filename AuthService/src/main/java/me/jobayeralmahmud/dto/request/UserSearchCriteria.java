@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserSearchCriteria {
-
     private String email;
     private String firstName;
     private String lastName;

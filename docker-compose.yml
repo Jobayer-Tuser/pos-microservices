@@ -99,12 +99,16 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       EUREKA_SERVER_HOST: eureka-server
       EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       SPRING_DEVTOOLS_RESTART_ENABLED: true
       MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
       mysql-db:
         condition: service_healthy
       eureka-server:
+        condition: service_started
+      redis:
         condition: service_started
     networks:
       - microservice-network

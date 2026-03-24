@@ -1,6 +1,6 @@
 package me.jobayeralmahmud.exceptions;
 
-import me.jobayeralmahmud.response.ApiResponse;
+import me.jobayeralmahmud.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one" + ex.getMessage());
     }
 
     private ResponseEntity<ApiResponse<Void>> buildResponse(HttpStatus httpStatus, String exceptionMessage) {

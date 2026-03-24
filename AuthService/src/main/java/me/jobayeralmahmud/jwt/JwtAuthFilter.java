@@ -24,8 +24,8 @@ import java.util.Optional;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
     private final RedisService redisService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -36,20 +36,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        var token = authHeader.replace("Bearer ", "");
-        var jti   = jwtService.extractJti(token);
+        var token      = authHeader.replace("Bearer ", "");
+        var jwtParser  = jwtService.parseToken(token);
+        var jti        = jwtParser.getSubject().toString();
+        var email      = jwtParser.getEmail();
 
-        if (jwtService.isTokenExpired(token) && redisService.isBlackListed(jti)) {
+        if (jwtParser.isTokenExpired() && redisService.isBlackListed(jti)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String userEmail = jwtService.extractUserEmail(token);
+        if (Optional.ofNullable(email).isPresent() && Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-        if (Optional.ofNullable(userEmail).isPresent() && Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-
-            if (jwtService.isValidToken(token, userDetails)) {
+            if (jwtParser.isValidToken(userDetails, redisService)) {
                 setAuthentication(request, userDetails);
             }
         }

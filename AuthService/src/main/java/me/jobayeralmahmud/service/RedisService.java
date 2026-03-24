@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
 
     private final StringRedisTemplate redisTemplate;
-    private static final String BLACKLIST_PREFIX = "blacklist:";
+    private static final String BLACKLIST_PREFIX = "blacklist:user:";
 
     public void addToBlacklist(String jti, long ttl) {
         setToken(BLACKLIST_PREFIX + jti, ttl);
@@ -19,6 +19,10 @@ public class RedisService {
 
     public boolean isBlackListed(String jti) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + jti));
+    }
+
+    public void delete(String key) {
+        redisTemplate.delete(key);
     }
 
     private void setToken(String key, long ttl) {

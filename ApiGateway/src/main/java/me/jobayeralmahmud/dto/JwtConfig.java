@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.service;
+package me.jobayeralmahmud.dto;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

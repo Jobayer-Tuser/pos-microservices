@@ -1,8 +1,8 @@
 package me.jobayeralmahmud.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import me.jobayeralmahmud.dto.UserIdentityHeader;
 import me.jobayeralmahmud.exceptions.BearerTokenException;
-import me.jobayeralmahmud.service.Jwt;
 import me.jobayeralmahmud.service.JwtService;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
@@ -26,9 +26,6 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private final RouteValidator routeValidator;
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String X_USER_ID = "X-User-Id";
-    private static final String X_USER_ROLE = "X-User-Role";
-    private static final String X_USER_PERMISSIONS = "X-User-Permissions";
 
     public PreGatewayFilterFactory(RouteValidator routeValidator, JwtService jwtService) {
         super(Config.class);
@@ -58,7 +55,6 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
             }
 
             var token = authHeader.trim().replace(BEARER_PREFIX, "");
-
             return extractTokenAndMutateRequestWithUserInfo(exchange, chain, token);
         };
     }
@@ -69,23 +65,11 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private @NonNull Mono<Void> extractTokenAndMutateRequestWithUserInfo(
             ServerWebExchange exchange, GatewayFilterChain chain, String token) {
 
-        Jwt jwt             = jwtService.parseToken(token);
-        var role            = jwt.getRole();
-        var userId          = String.valueOf(jwt.getUserId());
-        System.out.println(userId);
-        var permissions     = jwt.getUserPermissions();
+        var jwtParser       = jwtService.parseToken(token);
         var requestBuilder  = exchange.getRequest().mutate();
 
-        if (role != null && !role.isEmpty()) {
-            requestBuilder.header(X_USER_ROLE, role);
-        }
-        if (permissions != null && !permissions.isEmpty()) {
-            requestBuilder.header(X_USER_PERMISSIONS, permissions);
-        }
-
-        if (userId != null && !userId.isEmpty()) {
-            requestBuilder.header(X_USER_ID, userId);
-        }
+        var identityHeader = new UserIdentityHeader(jwtParser.getUserId(), jwtParser.getRole(), jwtParser.getUserPermissions());
+        identityHeader.getHeaders().forEach(requestBuilder::header);
 
         var mutatedRequest = requestBuilder.build();
         return chain.filter(exchange.mutate().request(mutatedRequest).build());

@@ -35,9 +35,10 @@ public class CustomLogoutHandler implements LogoutHandler {
     }
 
     private void setTokenToBlacklist(String token) {
-        var jti = jwtService.extractJti(token);
-        var remainingTime = jwtService.getRemainingExpirationTime(token);
-        redisService.addToBlacklist(jti, remainingTime);
+        var jwtParser = jwtService.parseToken(token);
+        var jti = jwtParser.getSubject().toString();
+        var ttl = jwtParser.remainExpireTime();
+        redisService.addToBlacklist(jti, ttl);
     }
 
     private @Nullable String extractTokenFromRequestHeader(HttpServletRequest request) {

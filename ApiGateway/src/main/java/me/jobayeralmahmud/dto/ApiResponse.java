@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.response;
+package me.jobayeralmahmud.dto;
 
 import org.springframework.http.HttpStatus;
 
