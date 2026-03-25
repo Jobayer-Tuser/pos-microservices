@@ -36,30 +36,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        var token      = authHeader.replace("Bearer ", "");
+        var token      = authHeader.substring(7);
         var jwtParser  = jwtService.parseToken(token);
-        var jti        = jwtParser.getSubject().toString();
-        var email      = jwtParser.getEmail();
 
-        if (jwtParser.isTokenExpired() && redisService.isBlackListed(jti)) {
+        if (jwtParser.isTokenExpired() || redisService.isBlackListed(jwtParser.getJti())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (Optional.ofNullable(email).isPresent() && Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-            if (jwtParser.isValidToken(userDetails, redisService)) {
-                setAuthentication(request, userDetails);
-            }
-        }
+        setAuthenticationIfNot(request, jwtParser.getEmail(), jwtParser, redisService);
 
         filterChain.doFilter(request, response);
     }
 
-    private static void setAuthentication(HttpServletRequest request, UserDetails userDetails) {
-        var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    private void setAuthenticationIfNot(HttpServletRequest request, String email, JwtParser jwtParser, RedisService redisService) {
+        if (Optional.ofNullable(email).isPresent() && Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+            if (jwtParser.isValidToken(userDetails, redisService)) {
+                var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        }
     }
 }

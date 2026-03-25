@@ -23,6 +23,10 @@ public class JwtParser {
         return UUID.fromString(claims.getSubject());
     }
 
+    public String getJti() {
+        return claims.getId();
+    }
+
     public String getEmail() {
         return claims.get("email", String.class);
     }

@@ -1,5 +1,6 @@
-package me.jobayeralmahmud.config;
+package me.jobayeralmahmud.handler;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     private void setTokenToBlacklist(String token) {
         var jwtParser = jwtService.parseToken(token);
-        var jti = jwtParser.getSubject().toString();
+        var jti = jwtParser.getJti();
         var ttl = jwtParser.remainExpireTime();
         redisService.addToBlacklist(jti, ttl);
     }
@@ -50,14 +51,18 @@ public class CustomLogoutHandler implements LogoutHandler {
     }
 
     private void clearRefreshTokenCookie(HttpServletRequest request, HttpServletResponse response) {
-        Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals("refreshToken"))
-                .findFirst()
-                .ifPresent(cookie -> {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                });
+        Cookie[] cookies = request.getCookies();
+        if (Optional.ofNullable(cookies).isPresent()) {
+            Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookie.getName().equals("refreshToken"))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        cookie.setValue("");
+                        cookie.setPath("/");
+                        cookie.setMaxAge(0);
+                        response.addCookie(cookie);
+                    });
+        }
+
     }
 }

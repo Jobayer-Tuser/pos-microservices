@@ -1,6 +1,7 @@
 package me.jobayeralmahmud.config;
 
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.handler.ApplicationAuditAware;
 import net.datafaker.Faker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

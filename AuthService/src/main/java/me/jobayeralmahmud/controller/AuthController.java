@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(Routes.AUTH_SERVICE)
+@RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class AuthController extends Controller {
 
     private final AuthService authService;
     private final UserService userService;
 
-    @PostMapping(Routes.LOGIN)
+    @PostMapping(Routes.Auth.LOGIN)
     public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         var accessToken = authService.authenticateUser(request, response);
         return ok(new JwtResponse(accessToken), "Successful login");
     }
 
-    @PostMapping(Routes.REGISTER)
+    @PostMapping(Routes.Auth.REGISTER)
     public ResponseEntity<ApiResponse<UserDto>> register(@RequestBody CreateUserRequest request) {
         UserDto user = userService.createUser(request);
         return created(user, "Successfully created user please check your email to email verify!");
     }
 
-    @PostMapping(Routes.TOKEN_REFRESH)
+    @PostMapping(Routes.Auth.TOKEN_REFRESH)
     public ResponseEntity<ApiResponse<JwtResponse>> refresh(@CookieValue(value = "refreshToken") String refreshToken) {
         var accessToken = authService.refreshToken(refreshToken);
         return ok(new JwtResponse(accessToken),  "Successfully refreshed token");
     }
 
-    @GetMapping(Routes.VALIDATED_PROFILE)
+    @GetMapping(Routes.User.VALIDATED_PROFILE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse<HashMap<String, Object>>> getAuthenticatedUserProfile(@AuthenticationPrincipal SecuredUser user) {
         var data = new HashMap<String, Object>();

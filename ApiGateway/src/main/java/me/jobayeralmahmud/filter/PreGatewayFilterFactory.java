@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.jobayeralmahmud.dto.UserIdentityHeader;
 import me.jobayeralmahmud.exceptions.BearerTokenException;
 import me.jobayeralmahmud.service.JwtService;
+import me.jobayeralmahmud.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -26,11 +27,13 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private final RouteValidator routeValidator;
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private final RedisService redisService;
 
-    public PreGatewayFilterFactory(RouteValidator routeValidator, JwtService jwtService) {
+    public PreGatewayFilterFactory(RouteValidator routeValidator, JwtService jwtService, RedisService redisService) {
         super(Config.class);
         this.jwtService = jwtService;
         this.routeValidator = routeValidator;
+        this.redisService = redisService;
     }
 
     /**
@@ -66,6 +69,11 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
             ServerWebExchange exchange, GatewayFilterChain chain, String token) {
 
         var jwtParser       = jwtService.parseToken(token);
+
+        if (redisService.isBlackListed(jwtParser.getJti())) {
+            throw new BearerTokenException("Token is blacklisted or invalid");
+        }
+
         var requestBuilder  = exchange.getRequest().mutate();
 
         var identityHeader = new UserIdentityHeader(jwtParser.getUserId(), jwtParser.getRole(), jwtParser.getUserPermissions());

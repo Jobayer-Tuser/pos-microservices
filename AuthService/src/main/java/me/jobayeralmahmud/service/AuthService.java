@@ -7,6 +7,7 @@ import me.jobayeralmahmud.config.Routes;
 import me.jobayeralmahmud.dto.request.LoginRequest;
 import me.jobayeralmahmud.entity.User;
 import me.jobayeralmahmud.jwt.JwtConfig;
+import me.jobayeralmahmud.jwt.JwtParser;
 import me.jobayeralmahmud.jwt.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -53,44 +54,32 @@ public class AuthService {
         var refreshToken = jwtService.generateRefreshToken(user);
 
         revokeAllTokensByUser(user);
-        storeUserToken(refreshToken, user);
         setCookie(refreshToken, response);
         return accessToken;
     }
 
     public String refreshToken(String refreshToken) {
 
-        if (jwtService.isTokenExpired(refreshToken)) {
+        JwtParser jwtParser = jwtService.parseToken(refreshToken);
+
+        if (jwtParser.isTokenExpired()) {
              throw new BadCredentialsException("Jwt token is expired or not valid please provide valid token");
         }
 
-        var user = userService.getUserById(jwtService.extractUserId(refreshToken));
+        var user = userService.getUserById(jwtParser.getSubject());
         return jwtService.generateAccessToken(user);
     }
 
     private void setCookie(String refreshToken, HttpServletResponse response) {
         ResponseCookie resCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .path(Routes.AUTH_SERVICE + Routes.LOGIN)
-                .maxAge(604800)
                 .secure(false)
+                .path("/")
+                .maxAge(jwtConfig.refreshTokenExpiration())
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, resCookie.toString());
-    }
-
-    private void setCookieWithJakarta(String refreshToken, HttpServletResponse response) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/api/auth/login");
-        cookie.setMaxAge(jwtConfig.refreshTokenExpiration());
-        cookie.setSecure(true);
-        response.addCookie(cookie);
-    }
-
-    private void storeUserToken(String token, User user) {
-        long expirationTime = jwtService.getRemainingExpirationTime(token);
-        redisService.addToBlacklist(jwtService.extractJti(token), expirationTime);
     }
 
     private void revokeAllTokensByUser(User user) {

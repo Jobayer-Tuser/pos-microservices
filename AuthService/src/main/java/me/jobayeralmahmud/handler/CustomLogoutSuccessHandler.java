@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.config;
+package me.jobayeralmahmud.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

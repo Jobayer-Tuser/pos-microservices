@@ -13,16 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(Routes.AUTH_SERVICE)
+@RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class PermissionsSeederBaseController extends Controller {
 
     private final PermissionRepository repository;
 
-    @PostMapping(Routes.SEED_PERMISSIONS)
+    @PostMapping(Routes.Seed.PERMISSIONS)
     public ResponseEntity<ApiResponse<List<Permission>>> insertPermissions() {
         List<String> permissions = List.of("READ_USER", "EDIT_USER", "DELETE_USER");
         List<Permission> roleEntity = permissions.stream()
+                .filter(permission -> repository.findByName(permission).isEmpty())
                 .map(Permission::new)
                 .toList();
 

@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.config;
+package me.jobayeralmahmud.handler;
 
 import me.jobayeralmahmud.service.SecuredUser;
 import org.jspecify.annotations.NullMarked;

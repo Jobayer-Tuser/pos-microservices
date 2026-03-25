@@ -2,6 +2,9 @@ package me.jobayeralmahmud.config;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.enums.UserRole;
+import me.jobayeralmahmud.handler.CustomAccessDeniedHandler;
+import me.jobayeralmahmud.handler.CustomLogoutHandler;
+import me.jobayeralmahmud.handler.CustomLogoutSuccessHandler;
 import me.jobayeralmahmud.jwt.JwtAuthFilter;
 import me.jobayeralmahmud.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class SecurityConfig {
 
         private final CustomLogoutHandler logoutHandler;
         private final CustomAccessDeniedHandler accessDeniedHandler;

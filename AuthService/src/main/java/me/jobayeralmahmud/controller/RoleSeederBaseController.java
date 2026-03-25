@@ -13,16 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(Routes.AUTH_SERVICE)
+@RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class RoleSeederBaseController extends Controller {
 
     private final RoleRepository repository;
 
-    @PostMapping(Routes.SEED_ROLES)
+    @PostMapping(Routes.Seed.ROLES)
     public ResponseEntity<ApiResponse<List<Role>>> insertRole() {
         List<String> roles = List.of("USER", "ADMIN", "EDITOR", "OPERATOR");
         List<Role> roleEntity = roles.stream()
+                .filter(role -> repository.findByName(role).isEmpty())
                 .map(Role::new)
                 .toList();
 

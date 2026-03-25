@@ -54,6 +54,7 @@ public class JwtService {
     
     private String generateToken(User user, long tokenExpire) {
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
                 .claims(claimBuilder(user))
                 .signWith(encryptSecretKey())

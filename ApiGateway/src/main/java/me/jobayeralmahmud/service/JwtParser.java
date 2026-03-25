@@ -16,6 +16,10 @@ public class JwtParser {
         return UUID.fromString(claims.getSubject()).toString();
     }
 
+    public String getJti() {
+        return claims.getId();
+    }
+
     public String getUserPermissions() {
         Object permissionsClaim = claims.get("permissions");
 
