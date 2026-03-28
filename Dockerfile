@@ -8,6 +8,7 @@ COPY ApiGateway/pom.xml ApiGateway/pom.xml
 COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
+COPY StoreService/pom.xml StoreService/pom.xml
 COPY UtilityResource/pom.xml UtilityResource/pom.xml
 
 ARG MODULE_NAME

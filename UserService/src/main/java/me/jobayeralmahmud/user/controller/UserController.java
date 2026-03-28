@@ -2,9 +2,11 @@ package me.jobayeralmahmud.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.user.config.Routes;
 import me.jobayeralmahmud.library.response.ApiResponse;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
+import me.jobayeralmahmud.user.request.GetUserProfileRequest;
 import me.jobayeralmahmud.user.request.UpdateUserProfileRequest;
 import me.jobayeralmahmud.user.response.UserProfileDto;
 import me.jobayeralmahmud.user.service.UserProfileService;
@@ -23,19 +25,22 @@ public class UserController extends Controller {
 
     private final UserProfileService userProfileService;
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> index(GetUserProfileRequest request) {
+        return ok_list(userProfileService.collectUsers(request), "Successfully retrieve the user details please check the list!");
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<UserProfileDto>> storeUserDetails(@Valid @RequestBody CreateUserProfileRequest request) {
-        UserProfileDto userProfile = userProfileService.createUserProfile(request);
-        return created(userProfile, "User profile created successfully");
+    public ResponseEntity<?> store(@Valid @RequestBody CreateUserProfileRequest request) {
+        return created(userProfileService.createUserProfile(request), "User profile created successfully");
     }
 
     @PatchMapping(Routes.UPDATE_USER_PROFILE + "/{id}")
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    public ResponseEntity<ApiResponse<UserProfileDto>> updateUserDetails(@Valid @PathVariable UUID id, @RequestBody UpdateUserProfileRequest request) throws AccessDeniedException {
-        System.out.println(presentUserId());
-        UserProfileDto userProfile = userProfileService.updateUserProfile(id, request, presentUserId());
-        return ok(userProfile, "User profile updated successfully");
+    public ResponseEntity<?> update(@Valid @PathVariable UUID id, @RequestBody UpdateUserProfileRequest request) throws AccessDeniedException {
+        return ok(userProfileService.updateUserProfile(id, request, presentUserId()), "User profile updated successfully");
     }
 
     @GetMapping("/role")

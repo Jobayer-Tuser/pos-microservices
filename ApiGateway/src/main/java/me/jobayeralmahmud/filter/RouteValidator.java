@@ -1,6 +1,6 @@
 package me.jobayeralmahmud.filter;
 
-import me.jobayeralmahmud.config.Routes;
+import me.jobayeralmahmud.auth.config.Routes;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 

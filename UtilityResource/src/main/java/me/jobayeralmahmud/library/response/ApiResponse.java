@@ -3,6 +3,7 @@ package me.jobayeralmahmud.library.response;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public record ApiResponse<T>(
@@ -14,6 +15,16 @@ public record ApiResponse<T>(
 ) {
     public static <T> ApiResponse<T> success(T data, String message) {
         return new ApiResponse<>(true, HttpStatus.OK.value(), message, data, Map.of("timestamp", LocalDateTime.now()));
+    }
+
+    public static <T> ApiResponse<?> success(List<T> data, String message, boolean hasNext, int pageSize, Long nextId) {
+        return new ApiResponse<>(true, HttpStatus.OK.value(), message, data,
+                Map.of(
+                        "nextId", nextId,
+                        "pageSize", pageSize,
+                        "hasNext" , hasNext,
+                        "timestamp", LocalDateTime.now())
+                );
     }
 
     public static <T> ApiResponse<T> created(T data, String message) {

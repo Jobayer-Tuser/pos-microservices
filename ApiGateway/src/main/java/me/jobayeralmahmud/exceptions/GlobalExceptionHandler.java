@@ -1,6 +1,6 @@
 package me.jobayeralmahmud.exceptions;
 
-import me.jobayeralmahmud.dto.ApiResponse;
+import me.jobayeralmahmud.auth.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -3,6 +3,7 @@ package me.jobayeralmahmud.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
+import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.user.controller.AuthClient;
 
 import me.jobayeralmahmud.user.entity.UserProfile;
@@ -10,13 +11,17 @@ import me.jobayeralmahmud.user.mapper.UserProfileMapper;
 import me.jobayeralmahmud.user.repository.UserProfileRepository;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
 import me.jobayeralmahmud.user.request.CreateUserRequest;
+import me.jobayeralmahmud.user.request.GetUserProfileRequest;
 import me.jobayeralmahmud.user.request.UpdateUserProfileRequest;
 import me.jobayeralmahmud.user.response.UserDto;
 import me.jobayeralmahmud.user.response.UserProfileDto;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -24,9 +29,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {
 
+    private final AuthClient authClient;
     private final UserProfileMapper userProfileMapper;
     private final UserProfileRepository profileRepository;
-    private final AuthClient authClient;
 
     @Override
     public UserProfileDto createUserProfile(CreateUserProfileRequest request) {
@@ -63,5 +68,21 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         log.info("User updated successfully with ID: {}", id);
         return userProfileMapper.toSingleDto(updatedUser);
+    }
+
+    @Override
+    public CursorPageResponse<UserProfileDto> collectUsers(GetUserProfileRequest request) {
+        log.debug("Retrieving users with cursor pagination - cursor: {}, size: {}",
+                request.lastId(), request.pageSize());
+
+        Sort sort = Sort.by(Sort.Order.desc(request.property()));
+        PageRequest pageRequest = PageRequest.of(0, request.pageSize(), sort);
+        List<UserProfile> userDetails = profileRepository.fetchNextPage(request.lastId(), pageRequest);
+
+        boolean hasNext = userDetails.size() == request.pageSize() ;
+        Long nextId = hasNext ? userDetails.getLast().getId() : 0L;
+        var mappedUser = userProfileMapper.toDtoList(userDetails);
+
+        return new CursorPageResponse<>(mappedUser, request.pageSize(), nextId, hasNext);
     }
 }

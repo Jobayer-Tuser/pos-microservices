@@ -103,7 +103,7 @@ services:
       args:
         MODULE_NAME: AuthService
     ports:
-      - "9031:9031"
+      - "9013:9013"
       - "5005:5005"
     environment:
       DB_HOST: mysql-db
@@ -137,6 +137,47 @@ services:
           target: /app/UtilityResource/src
         - path: ./AuthService/pom.xml
           action: rebuild
+
+  store-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+      args:
+        MODULE_NAME: StoreService
+    ports:
+      - "9014:9014"
+      - "5007:5005"
+    environment:
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      DB_NAME: pos_store_service
+      DB_USER: ${MYSQL_DB_USERNAME}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_SERVER_HOST: eureka-server
+      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
+      REDIS_HOST: redis-stack
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - microservice-network
+    develop:
+      watch:
+        - path: ./StoreService/src
+          action: sync+restart
+          target: /app/StoreService/src
+        - path: ./UtilityResource/src
+          action: sync+restart
+          target: /app/UtilityResource/src
+        - path: ./StoreService/pom.xml
+          action: rebuild
+
 
   mysql-db:
     image: "mysql:8.4"

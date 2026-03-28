@@ -1,10 +1,10 @@
 package me.jobayeralmahmud.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jobayeralmahmud.dto.UserIdentityHeader;
+import me.jobayeralmahmud.auth.dto.UserIdentityHeader;
 import me.jobayeralmahmud.exceptions.BearerTokenException;
-import me.jobayeralmahmud.service.JwtService;
-import me.jobayeralmahmud.service.RedisService;
+import me.jobayeralmahmud.auth.service.JwtService;
+import me.jobayeralmahmud.auth.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.gateway.filter.GatewayFilter;

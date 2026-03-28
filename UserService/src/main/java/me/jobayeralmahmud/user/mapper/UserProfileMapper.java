@@ -7,6 +7,8 @@ import me.jobayeralmahmud.user.response.UserDto;
 import me.jobayeralmahmud.user.response.UserProfileDto;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class UserProfileMapper {
 
@@ -71,5 +73,9 @@ public class UserProfileMapper {
                 userProfile.getPermanentCity(),
                 userProfile.getPermanentCountry()
         );
+    }
+
+    public List<UserProfileDto> toDtoList(List<UserProfile> userDetails) {
+        return userDetails.stream().map(this::toSingleDto).toList();
     }
 }
