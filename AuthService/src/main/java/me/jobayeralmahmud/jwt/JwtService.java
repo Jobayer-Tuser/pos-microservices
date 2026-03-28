@@ -51,7 +51,7 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-    
+
     private String generateToken(User user, long tokenExpire) {
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())

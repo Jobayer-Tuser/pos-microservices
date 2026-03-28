@@ -27,27 +27,46 @@ public class CustomLogoutHandler implements LogoutHandler {
     public void logout(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @Nullable Authentication authentication) {
 
-        var token = extractTokenFromRequestHeader(request);
-        if (Optional.ofNullable(token).isEmpty())
-            return;
+        var token = extractAccessTokenFromRequestHeader(request);
+        if (token != null && !token.isBlank()) {
+            setTokenToBlacklist(token);
+        }
 
-        setTokenToBlacklist(token);
+        var refreshToken = extractRefreshTokenFromCookies(request);
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            setTokenToBlacklist(refreshToken);
+        }
+
         clearRefreshTokenCookie(request, response);
     }
 
     private void setTokenToBlacklist(String token) {
         var jwtParser = jwtService.parseToken(token);
-        var jti = jwtParser.getJti();
-        var ttl = jwtParser.remainExpireTime();
-        redisService.addToBlacklist(jti, ttl);
+        if (jwtParser != null) {
+            var jti = jwtParser.getJti();
+            var ttl = jwtParser.remainExpireTime();
+            redisService.addToBlacklist(jti, ttl);
+        }
     }
 
-    private @Nullable String extractTokenFromRequestHeader(HttpServletRequest request) {
+    private @Nullable String extractAccessTokenFromRequestHeader(HttpServletRequest request) {
         var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (Optional.ofNullable(authHeader).isEmpty() || !authHeader.startsWith("Bearer ")) {
             return null;
         }
         return authHeader.replace("Bearer ", "");
+    }
+
+    private @Nullable String extractRefreshTokenFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals("refreshToken"))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 
     private void clearRefreshTokenCookie(HttpServletRequest request, HttpServletResponse response) {

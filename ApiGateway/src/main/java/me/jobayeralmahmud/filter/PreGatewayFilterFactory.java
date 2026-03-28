@@ -17,7 +17,8 @@ import reactor.core.publisher.Mono;
 
 /**
  * Gateway filter factory for pre-processing requests with JWT authentication.
- * Validates secured routes, extracts and verifies Bearer tokens, and adds user info to request headers.
+ * Validates secured routes, extracts and verifies Bearer tokens, and adds user
+ * info to request headers.
  */
 @Slf4j
 @Component
@@ -29,7 +30,8 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private static final String BEARER_PREFIX = "Bearer ";
     private final RedisService redisService;
 
-    public PreGatewayFilterFactory(RouteValidator routeValidator, JwtService jwtService, RedisService redisService) {
+    public PreGatewayFilterFactory(RouteValidator routeValidator,
+                                   JwtService jwtService, RedisService redisService) {
         super(Config.class);
         this.jwtService = jwtService;
         this.routeValidator = routeValidator;
@@ -37,7 +39,8 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     }
 
     /**
-     * Applies the filter to validate JWT and mutate the request with user information.
+     * Applies the filter to validate JWT and mutate the request with user
+     * information.
      */
     @Override
     public @NullMarked GatewayFilter apply(Config config) {
@@ -48,12 +51,12 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
             }
 
             var headers = exchange.getRequest().getHeaders();
-            if(!headers.containsHeader(HttpHeaders.AUTHORIZATION)) {
+            if (!headers.containsHeader(HttpHeaders.AUTHORIZATION)) {
                 throw new BearerTokenException("Missing Authorization Header");
             }
 
             var authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader == null || !authHeader.trim().startsWith(BEARER_PREFIX)){
+            if (authHeader == null || !authHeader.trim().startsWith(BEARER_PREFIX)) {
                 throw new BearerTokenException("Missing Bearer Token or Invalid token format");
             }
 
@@ -63,20 +66,22 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     }
 
     /**
-     * Extracts the JWT token, parses it, and mutates the request with user role and permissions.
+     * Extracts the JWT token, parses it, and mutates the request with user role and
+     * permissions.
      */
     private @NonNull Mono<Void> extractTokenAndMutateRequestWithUserInfo(
             ServerWebExchange exchange, GatewayFilterChain chain, String token) {
 
-        var jwtParser       = jwtService.parseToken(token);
+        var jwtParser = jwtService.parseToken(token);
 
         if (redisService.isBlackListed(jwtParser.getJti())) {
             throw new BearerTokenException("Token is blacklisted or invalid");
         }
 
-        var requestBuilder  = exchange.getRequest().mutate();
+        var requestBuilder = exchange.getRequest().mutate();
 
-        var identityHeader = new UserIdentityHeader(jwtParser.getUserId(), jwtParser.getRole(), jwtParser.getUserPermissions());
+        var identityHeader = new UserIdentityHeader(jwtParser.getUserId(), jwtParser.getRole(),
+                jwtParser.getUserPermissions());
         identityHeader.getHeaders().forEach(requestBuilder::header);
 
         var mutatedRequest = requestBuilder.build();

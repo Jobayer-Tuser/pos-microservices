@@ -1,6 +1,5 @@
 package me.jobayeralmahmud.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +9,8 @@ import me.jobayeralmahmud.dto.request.CreateUserRequest;
 import me.jobayeralmahmud.dto.response.UserDto;
 import me.jobayeralmahmud.jwt.JwtResponse;
 import me.jobayeralmahmud.library.response.ApiResponse;
-import me.jobayeralmahmud.service.SecuredUser;
 import me.jobayeralmahmud.service.AuthService;
+import me.jobayeralmahmud.service.SecuredUser;
 import me.jobayeralmahmud.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

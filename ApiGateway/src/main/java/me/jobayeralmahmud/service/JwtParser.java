@@ -33,7 +33,7 @@ public class JwtParser {
         return permissionsHeader;
     }
 
-    public String getRole(){
+    public String getRole() {
         return claims.get("role", String.class);
     }
 }

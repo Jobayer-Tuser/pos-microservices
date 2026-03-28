@@ -1,6 +1,7 @@
 package me.jobayeralmahmud.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +11,10 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisService {
 
-    private final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final RedisTemplate <String, Object> redisTemplate;
     private static final String BLACKLIST_PREFIX = "blacklist:user:";
+    private static final String USER_CONTEXT_PREFIX = "ctx:user:";
 
     public void addToBlacklist(String jti, long ttl) {
         setToken(BLACKLIST_PREFIX + jti, ttl);
@@ -19,6 +22,10 @@ public class RedisService {
 
     public boolean isBlackListed(String jti) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + jti));
+    }
+
+    public void setUserContext(String jti, String userContext, long ttl) {
+        redisTemplate.opsForValue().set(USER_CONTEXT_PREFIX + jti, userContext, ttl, TimeUnit.MILLISECONDS);
     }
 
     public void delete(String key) {

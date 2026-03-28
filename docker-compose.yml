@@ -2,8 +2,10 @@ services:
   eureka-server:
     build:
       context: .
-      dockerfile: ServiceDiscovery/Dockerfile
+      dockerfile: Dockerfile
       target: dev
+      args:
+        MODULE_NAME: ServiceDiscovery
     ports:
       - "8761:8761"
     networks:
@@ -22,8 +24,10 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: ApiGateway/Dockerfile
+      dockerfile: Dockerfile
       target: dev
+      args:
+        MODULE_NAME: ApiGateway
     ports:
       - "9010:9010"
     environment:
@@ -31,10 +35,13 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       EUREKA_SERVER_HOST: eureka-server
       EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      REDIS_HOST: redis
+      REDIS_HOST: redis-stack
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     depends_on:
-      - eureka-server
+      eureka-server :
+        condition: service_started
+      redis-stack:
+          condition: service_started
     networks:
       - microservice-network
     develop:
@@ -51,8 +58,10 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: UserService/Dockerfile
+      dockerfile: Dockerfile
       target: dev
+      args:
+        MODULE_NAME: UserService
     ports:
       - "9012:9012"
       - "5006:5005"
@@ -65,7 +74,7 @@ services:
       EUREKA_SERVER_HOST: eureka-server
       EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
       SPRING_DEVTOOLS_RESTART_ENABLED: true
-      REDIS_HOST: redis
+      REDIS_HOST: redis-stack
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
@@ -89,8 +98,10 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: AuthService/Dockerfile
+      dockerfile: Dockerfile
       target: dev
+      args:
+        MODULE_NAME: AuthService
     ports:
       - "9031:9031"
       - "5005:5005"
@@ -103,7 +114,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       EUREKA_SERVER_HOST: eureka-server
       EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      REDIS_HOST: redis
+      REDIS_HOST: redis-stack
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       SPRING_DEVTOOLS_RESTART_ENABLED: true
       MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
@@ -112,7 +123,7 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_started
-      redis:
+      redis-stack:
         condition: service_started
     networks:
       - microservice-network
@@ -171,12 +182,26 @@ services:
     networks:
       - microservice-network
 
-  redis:
-    image: "redis:8.6-alpine"
+#  redis:
+#    image: "redis:8.6-alpine"
+#    restart: always
+#    ports:
+#      - "6379:6379"
+#    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+#    networks:
+#      - microservice-network
+#    volumes:
+#      - microservice-redis:/data
+
+  redis-stack:
+    image: "redis/redis-stack:latest"
     restart: always
     ports:
       - "6379:6379"
+      - "8001:8001"
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_ARGS=--requirepass ${REDIS_PASSWORD}
     networks:
       - microservice-network
     volumes:

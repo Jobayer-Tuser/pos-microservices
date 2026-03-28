@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.config.Routes;
 import me.jobayeralmahmud.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        var requestUri = request.getRequestURI();
+        boolean isLogoutPath = requestUri.contains(Routes.Auth.FULL_LOGOUT);
+        if (isLogoutPath){
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if ( Optional.ofNullable(authHeader).isEmpty() || !authHeader.startsWith("Bearer ")) {

@@ -41,13 +41,12 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(req -> req
                                 .requestMatchers(HttpMethod.POST,
-                                        "/dev/api/v1/auth/login",
-                                        "/dev/api/v1/auth/register",
-                                        "/dev/api/v1/auth/token-refresh")
+                                        Routes.Auth.FULL_LOGIN,
+                                        Routes.Auth.FULL_LOGOUT,
+                                        Routes.Auth.FULL_REGISTER,
+                                        Routes.Auth.FULL_TOKEN_REFRESH)
                                 .permitAll()
-                                .requestMatchers("/api/roles/**").hasRole(UserRole.ADMIN.name())
-                                .anyRequest()
-                                .authenticated())
+                                .anyRequest().authenticated())
                         .userDetailsService(userDetailsServiceImpl)
                         .exceptionHandling(e -> e
                                 .accessDeniedHandler(accessDeniedHandler)
@@ -57,10 +56,12 @@ public class SecurityConfig {
                                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                         .logout(l -> l
-                                .logoutUrl("/dev/api/v1/auth/logout")
+                                .logoutUrl(Routes.Auth.BASE + Routes.Auth.LOGOUT)
                                 .deleteCookies("refreshToken")
                                 .addLogoutHandler(logoutHandler)
-                                .logoutSuccessHandler(logoutSuccessHandler))
+                                .logoutSuccessHandler(logoutSuccessHandler)
+                                .clearAuthentication(true)
+                                .invalidateHttpSession(true))
                         .build();
         }
 
