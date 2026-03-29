@@ -1,9 +1,9 @@
 package me.jobayeralmahmud.library.response;
 
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 public record ApiResponse<T>(
@@ -17,7 +17,7 @@ public record ApiResponse<T>(
         return new ApiResponse<>(true, HttpStatus.OK.value(), message, data, Map.of("timestamp", LocalDateTime.now()));
     }
 
-    public static <T> ApiResponse<?> success(List<T> data, String message, boolean hasNext, int pageSize, Long nextId) {
+    public static <T> ApiResponse<?> success(Slice<T> data, String message, boolean hasNext, int pageSize, Long nextId) {
         return new ApiResponse<>(true, HttpStatus.OK.value(), message, data,
                 Map.of(
                         "nextId", nextId,

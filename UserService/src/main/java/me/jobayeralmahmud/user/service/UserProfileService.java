@@ -14,5 +14,5 @@ public interface UserProfileService {
 
     UserProfileDto createUserProfile(CreateUserProfileRequest request);
     UserProfileDto updateUserProfile(UUID id, UpdateUserProfileRequest request, UUID requesterId) throws AccessDeniedException;
-    CursorPageResponse<UserProfileSummary> collectUsers(GetUserProfileRequest request);
+    CursorPageResponse<UserProfileSummary> collectUsers(String property, int pageSize, Long lastId);
 }

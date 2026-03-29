@@ -38,7 +38,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public StoreDto updateStore(Long id, StoreUpdateRequest request, UUID currentUser) throws AuthorizationDeniedException {
+    public StoreDto updateStore(Long id, StoreUpdateRequest request, UUID currentUser) {
         var store = findStoreByIdOrThrow(id);
         verifyStoreOwnership(store, currentUser);
 
@@ -63,7 +63,7 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow(() -> new ResourcesNotFoundException("Store not found with id: " + id));
     }
 
-    private void verifyStoreOwnership(Store store, UUID currentUser) throws AuthorizationDeniedException {
+    private void verifyStoreOwnership(Store store, UUID currentUser) {
         if (!store.getOwnerId().equals(currentUser)) {
             throw new AuthorizationDeniedException("You are not owner of this store you can not update any data!");
         }

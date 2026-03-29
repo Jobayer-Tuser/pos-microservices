@@ -2,13 +2,9 @@ package me.jobayeralmahmud.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.user.config.Routes;
-import me.jobayeralmahmud.library.response.ApiResponse;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
-import me.jobayeralmahmud.user.request.GetUserProfileRequest;
 import me.jobayeralmahmud.user.request.UpdateUserProfileRequest;
-import me.jobayeralmahmud.user.response.UserProfileDto;
 import me.jobayeralmahmud.user.service.UserProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,8 +23,13 @@ public class UserController extends Controller {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> index(GetUserProfileRequest request) {
-        return ok_list(userProfileService.collectUsers(request), "Successfully retrieve the user details please check the list!");
+    public ResponseEntity<?> index(
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "10") int pageSize,
+            @RequestParam(required = false, defaultValue = "0") int size,
+            @RequestParam(required = false) Long lastId
+    ) {
+        return ok_list(userProfileService.collectUsers(sortBy, pageSize, lastId), "Successfully retrieve the user details please check the list!");
     }
 
     @PostMapping
