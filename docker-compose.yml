@@ -1,9 +1,33 @@
+x-build-common: &build-common
+  context: .
+  dockerfile: Dockerfile
+  target: dev
+
+x-env-common: &env-common
+  JWT_SECRET: ${JWT_SECRET}
+  DB_HOST: mysql-db
+  DB_PORT: 3306
+  DB_USER: ${MYSQL_DB_USERNAME}
+  DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  REDIS_HOST: redis-stack
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  EUREKA_SERVER_HOST: eureka-server
+  EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
+  SPRING_DEVTOOLS_RESTART_ENABLED: true
+  MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+x-depends-common: &depends-common
+  mysql-db:
+    condition: service_healthy
+  eureka-server:
+    condition: service_started
+  redis-stack:
+    condition: service_started
+
 services:
   eureka-server:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      <<: *build-common
       args:
         MODULE_NAME: ServiceDiscovery
     ports:
@@ -23,25 +47,13 @@ services:
 
   api-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      <<: *build-common
       args:
         MODULE_NAME: ApiGateway
     ports:
       - "9010:9010"
     environment:
-      SPRING_DEVTOOLS_RESTART_ENABLED: true
-      JWT_SECRET: ${JWT_SECRET}
-      EUREKA_SERVER_HOST: eureka-server
-      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      REDIS_HOST: redis-stack
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    depends_on:
-      eureka-server :
-        condition: service_started
-      redis-stack:
-          condition: service_started
+      <<: *env-common
     networks:
       - microservice-network
     develop:
@@ -57,31 +69,16 @@ services:
 
   user-service:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      <<: *build-common
       args:
         MODULE_NAME: UserService
     ports:
       - "9012:9012"
       - "5006:5005"
     environment:
-      DB_HOST: mysql-db
-      DB_PORT: 3306
+      <<: *env-common
       DB_NAME: pos_user_service
-      DB_USER: ${MYSQL_DB_USERNAME}
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      EUREKA_SERVER_HOST: eureka-server
-      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      SPRING_DEVTOOLS_RESTART_ENABLED: true
-      REDIS_HOST: redis-stack
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
+    depends_on: *depends-common
     networks:
       - microservice-network
     develop:
@@ -97,34 +94,16 @@ services:
 
   auth-service:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      <<: *build-common
       args:
         MODULE_NAME: AuthService
     ports:
       - "9013:9013"
       - "5005:5005"
     environment:
-      DB_HOST: mysql-db
-      DB_PORT: 3306
+      <<: *env-common
       DB_NAME: pos_auth_service
-      DB_USER: ${MYSQL_DB_USERNAME}
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      EUREKA_SERVER_HOST: eureka-server
-      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      REDIS_HOST: redis-stack
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      SPRING_DEVTOOLS_RESTART_ENABLED: true
-      MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-      redis-stack:
-        condition: service_started
+    depends_on: *depends-common
     networks:
       - microservice-network
     develop:
@@ -140,31 +119,16 @@ services:
 
   store-service:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
+      <<: *build-common
       args:
         MODULE_NAME: StoreService
     ports:
       - "9014:9014"
       - "5007:5005"
     environment:
-      DB_HOST: mysql-db
-      DB_PORT: 3306
+      <<: *env-common
       DB_NAME: pos_store_service
-      DB_USER: ${MYSQL_DB_USERNAME}
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      EUREKA_SERVER_HOST: eureka-server
-      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}
-      SPRING_DEVTOOLS_RESTART_ENABLED: true
-      REDIS_HOST: redis-stack
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      MAVEN_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
+    depends_on: *depends-common
     networks:
       - microservice-network
     develop:
@@ -178,6 +142,30 @@ services:
         - path: ./StoreService/pom.xml
           action: rebuild
 
+  product-service:
+    build:
+      <<: *build-common
+      args:
+        MODULE_NAME: ProductService
+    ports:
+      - "9015:9015"
+      - "5008:5005"
+    environment:
+      <<: *env-common
+      DB_NAME: pos_product_service
+    depends_on: *depends-common
+    networks:
+      - microservice-network
+    develop:
+      watch:
+        - path: ./ProductService/src
+          action: sync+restart
+          target: /app/ProductService/src
+        - path: ./UtilityResource/src
+          action: sync+restart
+          target: /app/UtilityResource/src
+        - path: ./ProductService/pom.xml
+          action: rebuild
 
   mysql-db:
     image: "mysql:8.4"
@@ -187,7 +175,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_DB_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
-#      MYSQL_DATABASE: ${MYSQL_DB_NAME}
     volumes:
       - microservice-mysql:/var/lib/mysql
     networks:
@@ -222,17 +209,6 @@ services:
       - postgres-db
     networks:
       - microservice-network
-
-#  redis:
-#    image: "redis:8.6-alpine"
-#    restart: always
-#    ports:
-#      - "6379:6379"
-#    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
-#    networks:
-#      - microservice-network
-#    volumes:
-#      - microservice-redis:/data
 
   redis-stack:
     image: "redis/redis-stack:latest"
