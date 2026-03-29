@@ -1,34 +1,43 @@
 package me.jobayeralmahmud.store.controller;
 
-import me.jobayeralmahmud.library.response.ApiResponse;
-import me.jobayeralmahmud.store.response.StoreDto;
+import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.store.request.StoreCreateRequest;
+import me.jobayeralmahmud.store.request.StoreUpdateRequest;
+import me.jobayeralmahmud.store.service.StoreService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.nio.file.AccessDeniedException;
 
 @RestController
-@RequestMapping()
-public class StoreController extends Controller{
+@RequiredArgsConstructor
+@RequestMapping("/dev/api/v1/store")
+public class StoreController extends Controller {
 
-    public ResponseEntity<ApiResponse<List<StoreDto>>> index() {
-        return null;
+    private final StoreService storeService;
+
+    @GetMapping
+    public ResponseEntity<?> index(Pageable pageable) {
+        return ok(storeService.findAllStores(pageable), "Stores retrieved successfully");
     }
 
-    public ResponseEntity<ApiResponse<List<StoreDto>>> store() {
-        return null;
+    @PostMapping
+    public ResponseEntity<?> store(@RequestBody StoreCreateRequest request) {
+        return created(storeService.createStore(request), "Store created successfully");
     }
 
-    public ResponseEntity<ApiResponse<List<StoreDto>>> update() {
-        return null;
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable("id") Long storeId,  @RequestBody  StoreUpdateRequest request) throws AccessDeniedException {
+        return ok(storeService.updateStore(storeId, request, currentUser()), "Store updated successfully");
     }
 
-    public ResponseEntity<ApiResponse<List<StoreDto>>> show() {
-        return null;
+    @GetMapping("show/{id}")
+    public ResponseEntity<?> show(@PathVariable("id") Long storeId) {
+        return ok(storeService.findStoreById(storeId), "Store details retrieved successfully");
     }
 
-    public ResponseEntity<ApiResponse<List<StoreDto>>> showStoreByAdmin() {
-        return null;
+    public ResponseEntity<?> showStoreByOwner() {
+        return ok(storeService.getStoreByOwner(currentUser()), "Store details retrieved successfully");
     }
 }

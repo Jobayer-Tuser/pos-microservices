@@ -23,13 +23,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Boolean existsByEmail(String email);
 
     @Query("""
-            SELECT u FROM User u 
-                LEFT JOIN FETCH u.role 
-            WHERE (:cursor IS NULL OR u.id > :cursor) 
-            ORDER BY u.id ASC 
+            SELECT u FROM User u
+                LEFT JOIN FETCH u.role
+            WHERE (:cursor IS NULL OR u.id > :cursor)
+            ORDER BY u.id ASC
     """)
     List<User> cursorPaginationPattern(@Param("cursor") Long cursor, Pageable pageable);
 
     @Query("select u from User u join fetch u.role r join fetch r.permissions where u.email = :email")
     Optional<User> findByEmailWithPermissions(@Param("email") String email);
+
+    @Query("select u from User u left join fetch u.role r left join fetch r.permissions where u.email = :email")
+    Optional<User> findByEmailWithRoleAndPermissions(@Param("email") String email);
 }

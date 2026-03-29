@@ -15,13 +15,13 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "pos_store_service")
+@Table(name = "pos_store")
 public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private UUID owner_id;
+    private UUID ownerId;
     private String brandName;
     private String description;
     private String email;
@@ -37,4 +37,11 @@ public class Store {
     @LastModifiedDate
     @Column(insertable = false)
     private Instant updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = StoreStatus.INACTIVE;
+        }
+    }
 }

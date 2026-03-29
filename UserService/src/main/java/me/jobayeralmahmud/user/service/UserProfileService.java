@@ -1,6 +1,7 @@
 package me.jobayeralmahmud.user.service;
 
 import me.jobayeralmahmud.library.response.CursorPageResponse;
+import me.jobayeralmahmud.user.entity.UserProfileInfo;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
 import me.jobayeralmahmud.user.request.GetUserProfileRequest;
 import me.jobayeralmahmud.user.request.UpdateUserProfileRequest;
@@ -13,5 +14,5 @@ public interface UserProfileService {
 
     UserProfileDto createUserProfile(CreateUserProfileRequest request);
     UserProfileDto updateUserProfile(UUID id, UpdateUserProfileRequest request, UUID requesterId) throws AccessDeniedException;
-    CursorPageResponse<UserProfileDto> collectUsers(GetUserProfileRequest request);
+    CursorPageResponse<UserProfileInfo> collectUsers(GetUserProfileRequest request);
 }

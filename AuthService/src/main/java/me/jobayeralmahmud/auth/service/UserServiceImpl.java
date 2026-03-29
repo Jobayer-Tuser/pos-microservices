@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmail(String email) {
         log.debug("Retrieving user by email: {}", email);
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailWithRoleAndPermissions(email)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         String.format("User not found with email: %s", email)));
     }

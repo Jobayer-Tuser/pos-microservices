@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class S1__CreateStoreTable extends BaseMigration {
     @Override
     public void up(Schema schema) throws SQLException {
-        schema.create("pos_store_service", table -> {
+        schema.create("pos_store", table -> {
             table.id();
             table.foreignuuid("owner_id");
             table.string("brand_name");
@@ -27,6 +27,6 @@ public class S1__CreateStoreTable extends BaseMigration {
 
     @Override
     public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_store_service");
+        schema.dropIfExists("pos_store");
     }
 }

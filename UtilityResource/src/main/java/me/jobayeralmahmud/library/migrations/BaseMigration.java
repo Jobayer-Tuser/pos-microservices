@@ -5,7 +5,8 @@ import java.sql.SQLException;
 public abstract class BaseMigration {
 
     /**
-     * Automatically extracts the version from the class name example(s1_create_users_table).
+     * Automatically extracts the version from the class name
+     * example(s1_create_users_table).
      */
     public String migrationTablesName() {
         return convertClassNameToSnakeCase(this.getClass().getSimpleName());

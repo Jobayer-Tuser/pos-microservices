@@ -8,9 +8,12 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
 @EnableDiscoveryClient
-@SpringBootApplication(exclude = {UserDetailsServiceAutoConfiguration.class})
+@SpringBootApplication(
+        exclude = { UserDetailsServiceAutoConfiguration.class },
+        scanBasePackages = {"me.jobayeralmahmud" }
+)
 public class UserServiceApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
     }
 }
