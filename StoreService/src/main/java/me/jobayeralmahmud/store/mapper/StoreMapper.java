@@ -6,11 +6,13 @@ import me.jobayeralmahmud.store.request.StoreUpdateRequest;
 import me.jobayeralmahmud.store.response.StoreDto;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class StoreMapper {
-    public Store requestToEntity(StoreCreateRequest request) {
+    public Store requestToEntity(StoreCreateRequest request, UUID currentUser) {
         return Store.builder()
-                .ownerId(request.owner_id())
+                .ownerId(currentUser)
                 .brandName(request.brandName())
                 .description(request.description())
                 .email(request.email())

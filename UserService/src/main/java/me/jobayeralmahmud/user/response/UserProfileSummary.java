@@ -1,13 +1,14 @@
-package me.jobayeralmahmud.user.entity;
+package me.jobayeralmahmud.user.response;
 
 import me.jobayeralmahmud.library.enums.Gender;
+import me.jobayeralmahmud.user.entity.UserProfile;
 
 import java.util.UUID;
 
 /**
  * Projection for {@link UserProfile}
  */
-public record UserProfileInfo(
+public record UserProfileSummary(
     Long id,
     UUID userId,
     int age,

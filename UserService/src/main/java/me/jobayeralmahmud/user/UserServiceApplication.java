@@ -10,7 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 @SpringBootApplication(
         exclude = { UserDetailsServiceAutoConfiguration.class },
-        scanBasePackages = {"me.jobayeralmahmud" }
+        scanBasePackages = { "me.jobayeralmahmud" }
 )
 public class UserServiceApplication {
     static void main(String[] args) {

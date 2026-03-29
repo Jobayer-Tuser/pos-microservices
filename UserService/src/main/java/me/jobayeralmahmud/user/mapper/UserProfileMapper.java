@@ -74,8 +74,4 @@ public class UserProfileMapper {
                 userProfile.getPermanentCountry()
         );
     }
-
-    public List<UserProfileDto> toDtoList(List<UserProfile> userDetails) {
-        return userDetails.stream().map(this::toSingleDto).toList();
-    }
 }

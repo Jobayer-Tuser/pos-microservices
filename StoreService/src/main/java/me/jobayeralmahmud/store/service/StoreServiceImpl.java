@@ -8,65 +8,64 @@ import me.jobayeralmahmud.store.repository.StoreRepository;
 import me.jobayeralmahmud.store.request.StoreCreateRequest;
 import me.jobayeralmahmud.store.request.StoreUpdateRequest;
 import me.jobayeralmahmud.store.response.StoreDto;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Slice;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class StoreServiceImpl implements StoreService{
+@Transactional(readOnly = true)
+public class StoreServiceImpl implements StoreService {
 
     private final StoreMapper storeMapper;
     private final StoreRepository storeRepository;
 
     @Override
-    public StoreDto createStore(StoreCreateRequest request) {
-        var store = storeRepository.save(storeMapper.requestToEntity(request));
-        return storeMapper.entityToDto(store);
+    @Transactional
+    public StoreDto createStore(StoreCreateRequest request, UUID currentUser) {
+        var store = storeMapper.requestToEntity(request, currentUser);
+        return storeMapper.entityToDto(storeRepository.save(store));
     }
 
     @Override
     public StoreDto findStoreById(Long id) {
-        var store = findStoreByIdOrThrow(id);
-        return storeMapper.entityToDto(store);
+        return storeMapper.entityToDto(findStoreByIdOrThrow(id));
     }
 
     @Override
-    public StoreDto updateStore(Long id, StoreUpdateRequest request, UUID currentUser) throws AccessDeniedException {
+    @Transactional
+    public StoreDto updateStore(Long id, StoreUpdateRequest request, UUID currentUser) throws AuthorizationDeniedException {
         var store = findStoreByIdOrThrow(id);
+        verifyStoreOwnership(store, currentUser);
 
-        if (!store.getOwnerId().equals(currentUser)) {
-            throw new AccessDeniedException("You are not authorized to update this profile");
-        }
-
-        var updatedStore = storeRepository.save(storeMapper.updateStoreMap(store, request));
-        return storeMapper.entityToDto(updatedStore);
+        var updatedStore = storeMapper.updateStoreMap(store, request);
+        return storeMapper.entityToDto(storeRepository.save(updatedStore));
     }
 
     @Override
     public StoreDto getStoreByOwner(UUID currentUser) {
-        var store = storeRepository.findByOwnerId(currentUser)
-                        .orElseThrow(() -> new ResourcesNotFoundException("Store not found for owner with id: " + currentUser));
-        return storeMapper.entityToDto(store);
+        return storeRepository.findByOwnerId(currentUser)
+                .map(storeMapper::entityToDto)
+                .orElseThrow(() -> new ResourcesNotFoundException("Store not found for owner with id: " + currentUser));
     }
 
     @Override
-    public List<StoreDto> findAllStores(Pageable pageable) {
-//        Sort sort = Sort.by(Sort.Direction.DESC, filterBy);
-//        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
-
-        return storeRepository.findAll(pageable).stream()
-                .map(storeMapper::entityToDto)
-                .toList();
+    public Slice<StoreDto> findAllStores(Pageable pageable) {
+        return storeRepository.findAllStore(pageable);
     }
 
     private Store findStoreByIdOrThrow(Long id) {
         return storeRepository.findById(id)
-                        .orElseThrow(() -> new ResourcesNotFoundException("Store not found with id: " + id));
+                .orElseThrow(() -> new ResourcesNotFoundException("Store not found with id: " + id));
+    }
+
+    private void verifyStoreOwnership(Store store, UUID currentUser) throws AuthorizationDeniedException {
+        if (!store.getOwnerId().equals(currentUser)) {
+            throw new AuthorizationDeniedException("You are not owner of this store you can not update any data!");
+        }
     }
 }

@@ -1,7 +1,7 @@
 package me.jobayeralmahmud.user.repository;
 
 import me.jobayeralmahmud.user.entity.UserProfile;
-import me.jobayeralmahmud.user.entity.UserProfileInfo;
+import me.jobayeralmahmud.user.response.UserProfileSummary;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,8 +27,5 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
             p.gender as gender
         from UserProfile p where ( :lastId is null or p.id > :lastId )
     """)
-    List<UserProfileInfo> fetchNextPage(@Param("lastId") Long lastId, Pageable pageable);
-
-
-//    @Query("select p from UserProfile p where ( :lastId is null or p.id > :lastId )")
+    List<UserProfileSummary> fetchNextPage(@Param("lastId") Long lastId, Pageable pageable);
 }

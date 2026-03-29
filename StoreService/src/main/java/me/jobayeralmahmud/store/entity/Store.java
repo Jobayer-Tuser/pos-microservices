@@ -28,6 +28,8 @@ public class Store {
     private String phoneNumber;
     private String address;
     private String storeType;
+
+    @Enumerated(EnumType.STRING)
     private StoreStatus status;
 
     @CreatedDate

@@ -24,11 +24,11 @@ public class StoreController extends Controller {
 
     @PostMapping
     public ResponseEntity<?> store(@RequestBody StoreCreateRequest request) {
-        return created(storeService.createStore(request), "Store created successfully");
+        return created(storeService.createStore(request, currentUser()), "Store created successfully");
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") Long storeId,  @RequestBody  StoreUpdateRequest request) throws AccessDeniedException {
+    public ResponseEntity<?> update(@PathVariable("id") Long storeId, @RequestBody StoreUpdateRequest request) throws AccessDeniedException {
         return ok(storeService.updateStore(storeId, request, currentUser()), "Store updated successfully");
     }
 

@@ -7,7 +7,7 @@ import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.user.controller.AuthClient;
 
 import me.jobayeralmahmud.user.entity.UserProfile;
-import me.jobayeralmahmud.user.entity.UserProfileInfo;
+import me.jobayeralmahmud.user.response.UserProfileSummary;
 import me.jobayeralmahmud.user.mapper.UserProfileMapper;
 import me.jobayeralmahmud.user.repository.UserProfileRepository;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
@@ -75,13 +75,13 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public CursorPageResponse<UserProfileInfo> collectUsers(GetUserProfileRequest request) {
+    public CursorPageResponse<UserProfileSummary> collectUsers(GetUserProfileRequest request) {
         log.debug("Retrieving users with cursor pagination - cursor: {}, size: {}",
                 request.lastId(), request.pageSize());
 
         Sort sort = Sort.by(Sort.Order.desc(request.property()));
         PageRequest pageRequest = PageRequest.of(0, request.pageSize(), sort);
-        List<UserProfileInfo> userDetails = profileRepository.fetchNextPage(request.lastId(), pageRequest);
+        List<UserProfileSummary> userDetails = profileRepository.fetchNextPage(request.lastId(), pageRequest);
 
         boolean hasNext = userDetails.size() == request.pageSize() ;
         Long nextId = hasNext ? userDetails.getLast().id() : 0L;
