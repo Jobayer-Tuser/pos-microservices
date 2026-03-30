@@ -24,6 +24,11 @@ x-depends-common: &depends-common
   redis-stack:
     condition: service_started
 
+x-libraries-common: &libraries-common
+  path: ./UtilityResource/src
+  action: sync+restart
+  target: /app/UtilityResource/src
+
 services:
   eureka-server:
     build:
@@ -39,11 +44,9 @@ services:
         - path: ./ServiceDiscovery/src
           action: sync+restart
           target: /app/ServiceDiscovery/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./ServiceDiscovery/pom.xml
           action: rebuild
+        - *libraries-common
 
   api-gateway:
     build:
@@ -61,11 +64,9 @@ services:
         - path: ./ApiGateway/src
           action: sync+restart
           target: /app/ApiGateway/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./ApiGateway/pom.xml
           action: rebuild
+        - *libraries-common
 
   user-service:
     build:
@@ -86,11 +87,9 @@ services:
         - path: ./UserService/src
           action: sync+restart
           target: /app/UserService/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./UserService/pom.xml
           action: rebuild
+        - *libraries-common
 
   auth-service:
     build:
@@ -111,11 +110,9 @@ services:
         - path: ./AuthService/src
           action: sync+restart
           target: /app/AuthService/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./AuthService/pom.xml
           action: rebuild
+        - *libraries-common
 
   store-service:
     build:
@@ -136,11 +133,9 @@ services:
         - path: ./StoreService/src
           action: sync+restart
           target: /app/StoreService/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./StoreService/pom.xml
           action: rebuild
+        - *libraries-common
 
   product-service:
     build:
@@ -161,11 +156,9 @@ services:
         - path: ./ProductService/src
           action: sync+restart
           target: /app/ProductService/src
-        - path: ./UtilityResource/src
-          action: sync+restart
-          target: /app/UtilityResource/src
         - path: ./ProductService/pom.xml
           action: rebuild
+        - *libraries-common
 
   mysql-db:
     image: "mysql:8.4"
