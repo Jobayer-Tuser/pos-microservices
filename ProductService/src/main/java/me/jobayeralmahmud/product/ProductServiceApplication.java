@@ -2,15 +2,18 @@ package me.jobayeralmahmud.product;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableFeignClients
 @EnableJpaAuditing
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
+@SpringBootApplication(
+        exclude = UserDetailsServiceAutoConfiguration.class,
+        scanBasePackages = {"me.jobayeralmahmud.product"}
+)
 public class ProductServiceApplication {
-    static void main() {
-        SpringApplication.run(ProductServiceApplication.class);
+    static void main(String[] args) {
+        SpringApplication.run(ProductServiceApplication.class, args);
     }
 }

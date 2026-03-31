@@ -9,6 +9,7 @@ COPY UserService/pom.xml UserService/pom.xml
 COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
 COPY StoreService/pom.xml StoreService/pom.xml
+COPY ProductService/pom.xml ProductService/pom.xml
 COPY UtilityResource/pom.xml UtilityResource/pom.xml
 
 ARG MODULE_NAME
@@ -26,8 +27,12 @@ WORKDIR /app
 COPY UtilityResource ./UtilityResource
 COPY ${MODULE_NAME} ./${MODULE_NAME}
 
-# Install UtilityResource into the local Maven repo first, then run the requested module
-CMD mvn install -pl UtilityResource -am && mvn spring-boot:run -pl ${MODULE_NAME_ENV}
+# Install UtilityResource into the local Maven repo first (except for ServiceDiscovery), then run the requested module
+CMD if [ "$MODULE_NAME_ENV" = "ServiceDiscovery" ]; then \
+      mvn spring-boot:run -pl ${MODULE_NAME_ENV}; \
+    else \
+      mvn install -pl UtilityResource -am && mvn spring-boot:run -pl ${MODULE_NAME_ENV}; \
+    fi
 
 # Stage 3: Build the application (Production)
 FROM dependencies AS builder

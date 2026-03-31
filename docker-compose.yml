@@ -46,7 +46,6 @@ services:
           target: /app/ServiceDiscovery/src
         - path: ./ServiceDiscovery/pom.xml
           action: rebuild
-        - *libraries-common
 
   api-gateway:
     build:
@@ -64,9 +63,9 @@ services:
         - path: ./ApiGateway/src
           action: sync+restart
           target: /app/ApiGateway/src
+        - *libraries-common
         - path: ./ApiGateway/pom.xml
           action: rebuild
-        - *libraries-common
 
   user-service:
     build:
@@ -87,9 +86,9 @@ services:
         - path: ./UserService/src
           action: sync+restart
           target: /app/UserService/src
+        - *libraries-common
         - path: ./UserService/pom.xml
           action: rebuild
-        - *libraries-common
 
   auth-service:
     build:
@@ -110,9 +109,9 @@ services:
         - path: ./AuthService/src
           action: sync+restart
           target: /app/AuthService/src
+        - *libraries-common
         - path: ./AuthService/pom.xml
           action: rebuild
-        - *libraries-common
 
   store-service:
     build:
@@ -133,9 +132,9 @@ services:
         - path: ./StoreService/src
           action: sync+restart
           target: /app/StoreService/src
+        - *libraries-common
         - path: ./StoreService/pom.xml
           action: rebuild
-        - *libraries-common
 
   product-service:
     build:
@@ -156,9 +155,9 @@ services:
         - path: ./ProductService/src
           action: sync+restart
           target: /app/ProductService/src
+        - *libraries-common
         - path: ./ProductService/pom.xml
           action: rebuild
-        - *libraries-common
 
   mysql-db:
     image: "mysql:8.4"
