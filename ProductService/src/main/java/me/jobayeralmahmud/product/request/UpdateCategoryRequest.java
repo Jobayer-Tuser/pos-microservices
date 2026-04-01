@@ -1,4 +1,4 @@
 package me.jobayeralmahmud.product.request;
 
-public record CreateCategoryRequest() {
+public record UpdateCategoryRequest() {
 }
