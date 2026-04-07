@@ -21,6 +21,6 @@ public class S3__CreateCategoriesTable extends BaseMigration {
 
     @Override
     public void down(Schema schema) throws SQLException {
-
+        schema.dropIfExists("pos_product_categories");
     }
 }

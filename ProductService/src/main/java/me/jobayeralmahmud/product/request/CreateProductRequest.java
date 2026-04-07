@@ -1,4 +1,13 @@
 package me.jobayeralmahmud.product.request;
 
-public record CreateProductRequest() {
+import me.jobayeralmahmud.product.entity.Category;
+
+public record CreateProductRequest(
+        String name,
+        String sku,
+        String description,
+        String imageUrl,
+        String brand,
+        Category category
+) {
 }

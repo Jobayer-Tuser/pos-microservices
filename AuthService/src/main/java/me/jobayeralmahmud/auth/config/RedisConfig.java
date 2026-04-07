@@ -18,6 +18,7 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
 
         ObjectMapper mapper = new ObjectMapper();
+//        mapper.activateDefaultTyping(mapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
 
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
