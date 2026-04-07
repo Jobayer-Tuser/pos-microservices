@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 
 @Component
-public class S2__CreateProductVariantsTable extends BaseMigration {
+public class S3__CreateProductVariantsTable extends BaseMigration {
 
     @Override
     public void up(Schema schema) throws SQLException {

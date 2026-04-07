@@ -7,14 +7,16 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 
 @Component
-public class S1__CreateProductTable extends BaseMigration {
+public class S2__CreateProductsTable extends BaseMigration {
+
     @Override
     public void up(Schema schema) throws SQLException {
-        schema.table("pos_products", table -> {
+        schema.create("pos_products", table -> {
             table.id();
-            table.bigInteger("store_id");
+            table.bigInteger("store_id").unsigned();
             table.foreignId("category_id")
-                    .references("pos_product_categories").onDeleteSetNull();
+                    .nullable().references("pos_product_categories")
+                    .onUpdateCascade().onDeleteRestrict();
             table.string("name");
             table.string("sku").unique();
             table.text("description");

@@ -2,13 +2,14 @@ package me.jobayeralmahmud.product.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import me.jobayeralmahmud.library.utils.Slugify;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "pos_categories")
+@Table(name = "pos_product_categories")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,4 +24,9 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    @PrePersist @PreUpdate
+    public void generateSlug() {
+        this.slug = Slugify.toSlug(name);
+    }
 }

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @SpringBootApplication(
         exclude = UserDetailsServiceAutoConfiguration.class,
-        scanBasePackages = {"me.jobayeralmahmud.product"}
+        scanBasePackages = {"me.jobayeralmahmud"}
 )
 public class ProductServiceApplication {
     static void main(String[] args) {

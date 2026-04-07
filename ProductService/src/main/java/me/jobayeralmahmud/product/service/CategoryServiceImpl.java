@@ -2,11 +2,11 @@ package me.jobayeralmahmud.product.service;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
-import me.jobayeralmahmud.library.utils.Slugify;
 import me.jobayeralmahmud.product.entity.Category;
 import me.jobayeralmahmud.product.repository.CategoryRepository;
 import me.jobayeralmahmud.product.request.CreateCategoryRequest;
 import me.jobayeralmahmud.product.request.UpdateCategoryRequest;
+import me.jobayeralmahmud.product.response.CategoryDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class CategoryServiceImpl implements CategoryService {
     private final  CategoryRepository repository;
 
     @Override
-    public List<Category> getAllCategories() {
-        return repository.findAll();
+    public List<CategoryDto> getAllCategories() {
+        return repository.retrieveAllCategories();
     }
 
     @Override
@@ -32,7 +32,6 @@ public class CategoryServiceImpl implements CategoryService {
         var category = Category.builder()
                 .name(request.name())
                 .description(request.description())
-                .slug(Slugify.toSlug(request.name()))
                 .parentId(request.parentId())
                 .build();
         return repository.save(category);
@@ -43,13 +42,17 @@ public class CategoryServiceImpl implements CategoryService {
         var category = findCategoryById(id);
         category.setName(request.name());
         category.setDescription(request.description());
-        category.setSlug(Slugify.toSlug(request.name()));
         return repository.save(category);
     }
 
     @Override
     public void deleteCategory(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Category getCategoryReference(Long id) {
+        return repository.getReferenceById(id);
     }
 
     private Category findCategoryById(Long id) {

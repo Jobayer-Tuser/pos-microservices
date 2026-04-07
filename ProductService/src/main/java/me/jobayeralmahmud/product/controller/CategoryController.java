@@ -4,16 +4,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.library.controller.BaseController;
 import me.jobayeralmahmud.product.request.CreateCategoryRequest;
+import me.jobayeralmahmud.product.request.UpdateCategoryRequest;
 import me.jobayeralmahmud.product.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dev/api/v1/products")
+@RequestMapping("/dev/api/v1/categories")
 public class CategoryController extends BaseController {
 
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<?> index() {
@@ -26,13 +27,14 @@ public class CategoryController extends BaseController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id) {
-        return ResponseEntity.ok("Hello World");
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateCategoryRequest request) {
+        return ok(categoryService.updateCategory(id, request), "Category updated successfully");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> destroy(@PathVariable Long id) {
-        return ResponseEntity.ok("Hello World");
+        categoryService.deleteCategory(id);
+        return noContent("Category deleted successfully");
     }
 
 }

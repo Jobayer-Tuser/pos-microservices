@@ -48,6 +48,13 @@ spring:
               filters:
                 - Pre
 
+            - id: product_service
+              uri: lb://ProductService
+              predicates:
+                - Path=/dev/api/v1/products/**, /dev/api/v1/categories/**
+              filters:
+                - Pre
+
 eureka:
   client:
     serviceUrl:

@@ -1,14 +1,16 @@
 package me.jobayeralmahmud.product.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import me.jobayeralmahmud.product.enums.ProductStatus;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "pos_product_variants")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
