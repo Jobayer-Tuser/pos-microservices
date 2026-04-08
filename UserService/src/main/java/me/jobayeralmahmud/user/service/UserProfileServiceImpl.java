@@ -66,7 +66,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         Long nextId = userDetails.hasNext() ? userDetails.getContent().getLast().id() : 0L;
 
-        return new CursorPageResponse<>(userDetails, pageSize, nextId, userDetails.hasNext());
+        return new CursorPageResponse<>(userDetails.getContent(), pageSize, nextId, userDetails.hasNext());
     }
 
     private @NonNull UserDto createAndFetchAccountOrThrow(CreateUserProfileRequest request) {

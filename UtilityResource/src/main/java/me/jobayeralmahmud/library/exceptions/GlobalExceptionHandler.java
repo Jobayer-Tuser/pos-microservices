@@ -58,7 +58,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one" + ex.getMessage());
+        ex.printStackTrace(); // Added so we can see what actually failed
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one: " + ex.getMessage());
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

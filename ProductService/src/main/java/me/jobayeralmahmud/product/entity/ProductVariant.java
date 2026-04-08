@@ -1,5 +1,6 @@
 package me.jobayeralmahmud.product.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jobayeralmahmud.product.enums.ProductStatus;
@@ -25,6 +26,7 @@ public class ProductVariant {
     private ProductStatus status;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "product_id")
     private Product product;
 }

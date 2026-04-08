@@ -1,12 +1,18 @@
 package me.jobayeralmahmud.product.service;
 
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
+import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.product.entity.Product;
 import me.jobayeralmahmud.product.repository.ProductRepository;
 import me.jobayeralmahmud.product.request.CreateProductRequest;
 import me.jobayeralmahmud.product.request.UpdateProductRequest;
+import me.jobayeralmahmud.product.response.ProductDto;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,17 +24,27 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public List<Product> getAllProducts() {
-        return List.of();
+    public CursorPageResponse<ProductDto> getAllProducts(Long lastId, Pageable pageable) {
+        var sliceProduct = productRepository.retrieveAllProducts(lastId, pageable);
+        var products = sliceProduct.getContent();
+
+        if (products.isEmpty()) {
+            return new CursorPageResponse<>(Collections.emptyList(), pageable.getPageSize(), null, false);
+        }
+
+        var nextId = sliceProduct.hasNext() ? products.getLast().getId() : null;
+        var productDtos = mapProducts(products);
+
+        return new CursorPageResponse<>(productDtos, pageable.getPageSize(), nextId, sliceProduct.hasNext());
     }
 
     @Override
     public Product getProductById(Long id) {
-        return null;
+        return findProductByIdOrThrow(id);
     }
 
     @Override
-    public Product createProduct(CreateProductRequest request) {
+    public ProductDto createProduct(CreateProductRequest request) {
         var product = request.toEntity();
 
         var category = categoryService.getCategoryReference(request.categoryId());
@@ -46,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
             )
         );
 
-        return productRepository.save(product);
+        return ProductDto.fromEntity(productRepository.save(product));
     }
 
     @Override
@@ -57,5 +73,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
 
+    }
+
+    private Product findProductByIdOrThrow(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException("Product not found"));
+    }
+
+    private static @NonNull List<ProductDto> mapProducts(List<Product> products) {
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .toList();
     }
 }

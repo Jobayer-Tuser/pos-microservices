@@ -6,6 +6,7 @@ import me.jobayeralmahmud.library.controller.BaseController;
 import me.jobayeralmahmud.product.request.CreateProductRequest;
 import me.jobayeralmahmud.product.request.UpdateProductRequest;
 import me.jobayeralmahmud.product.service.ProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +18,18 @@ public class ProductController extends BaseController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<?> index() {
-        return ok(productService.getAllProducts(), "Products retrieved successfully");
+    public ResponseEntity<?> index(@RequestParam(required = false) Long lastId, Pageable pageable) {
+        return ok_list(productService.getAllProducts(lastId, pageable), "Products retrieved successfully");
     }
 
     @PostMapping
     public ResponseEntity<?> store(@Valid @RequestBody CreateProductRequest request) {
         return created(productService.createProduct(request), "Product created successfully");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> show(@PathVariable("id") Long productId) {
+        return ok(productService.getProductById(productId), "Products retrieved successfully");
     }
 
     @PatchMapping("/{id}")

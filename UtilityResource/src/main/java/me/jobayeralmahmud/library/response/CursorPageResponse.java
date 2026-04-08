@@ -1,11 +1,10 @@
 package me.jobayeralmahmud.library.response;
 
-import org.springframework.data.domain.Slice;
+import java.util.List;
 
 public record CursorPageResponse<T>(
-        Slice<T> data,
+        List<T> data,
         int pageSize,
         Long nextId,
         boolean hasNext
-) {
-}
+) {}

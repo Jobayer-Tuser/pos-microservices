@@ -23,6 +23,7 @@ public class Category {
     private String slug;
 
     @OneToMany(mappedBy = "category")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Product> products;
 
     @PrePersist @PreUpdate
