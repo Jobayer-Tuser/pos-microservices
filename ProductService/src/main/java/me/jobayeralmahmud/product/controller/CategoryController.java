@@ -9,6 +9,8 @@ import me.jobayeralmahmud.product.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dev/api/v1/categories")
@@ -27,12 +29,12 @@ public class CategoryController extends BaseController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateCategoryRequest request) {
+    public ResponseEntity<?> update(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryRequest request) {
         return ok(categoryService.updateCategory(id, request), "Category updated successfully");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> destroy(@PathVariable Long id) {
+    public ResponseEntity<?> destroy(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
         return noContent("Category deleted successfully");
     }

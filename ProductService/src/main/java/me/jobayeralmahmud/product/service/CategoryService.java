@@ -7,12 +7,14 @@ import me.jobayeralmahmud.product.response.CategoryDto;
 
 import java.util.List;
 
+import java.util.UUID;
+
 public interface CategoryService {
     List<CategoryDto> getAllCategories();
-    Category getCategoryById(Long id);
+    Category getCategoryById(UUID id);
     Category createCategory(CreateCategoryRequest request);
-    Category updateCategory(Long id, UpdateCategoryRequest request);
-    void deleteCategory(Long id);
+    Category updateCategory(UUID id, UpdateCategoryRequest request);
+    void deleteCategory(UUID id);
 
-    Category getCategoryReference(Long id);
+    Category getCategoryReference(UUID id);
 }

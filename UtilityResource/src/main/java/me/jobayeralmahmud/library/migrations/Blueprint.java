@@ -41,6 +41,10 @@ public class Blueprint {
         return addColumn(new UUIDColumn("id"));
     }
 
+    public UUIDColumn uuid(String name) {
+        return addColumn(new UUIDColumn(name));
+    }
+
     public ForeignUUIDColumn foreignuuid(String name) {
         var col = new ForeignUUIDColumn(name);
         col.setTable(this.tableName);
@@ -99,10 +103,6 @@ public class Blueprint {
         multiColumnUniquesConstraints.add(String.format("UNIQUE (%s)", String.join(", ", columnNames)));
     }
 
-    public void softDeletes() {
-        this.timeStamp("deleted_at");
-    }
-
     public DecimalColumn decimal(String name, int scale, int precision) {
         return addColumn(new DecimalColumn(name, scale, precision));
     }
@@ -111,12 +111,18 @@ public class Blueprint {
         return addColumn(new EnumColumn(name, options));
     }
 
+    public EnumColumn enumeration(String name, Enum<?>... values) {
+        return addColumn(new EnumColumn(name, values));
+    }
+
     public String getSql(String tableName) {
         Stream<String> definitions = columns.stream().map(Column::getDefinition);
         Stream<String> constraints = columns.stream()
-                .filter(ForeignIdColumn.class::isInstance)
-                .map(ForeignIdColumn.class::cast)
-                .map(ForeignIdColumn::getConstraintSql)
+                .map(c -> {
+                    if (c instanceof ForeignIdColumn f) return f.getConstraintSql();
+                    if (c instanceof ForeignUUIDColumn f) return f.getConstraintSql();
+                    return null;
+                })
                 .filter(Objects::nonNull);
 
         String finalQuery = Stream.concat(
@@ -131,6 +137,9 @@ public class Blueprint {
         columns.add(new RawColumn("updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
     }
 
+    public void softDelete() {
+        columns.add(new RawColumn("deleted_at TIMESTAMP NULL"));
+    }
     public void dropColumn(String name) {
         columnsToDrop.add(name);
     }
@@ -159,10 +168,19 @@ public class Blueprint {
                 if (rule != null) {
                     alterQuery.add(String.format("ALTER TABLE %s ADD %s", tableName, rule));
                 }
+            } else if (column instanceof ForeignUUIDColumn foreignUuidCol) {
+                String rule = foreignUuidCol.getConstraintSql();
+                if (rule != null) {
+                    alterQuery.add(String.format("ALTER TABLE %s ADD %s", tableName, rule));
+                }
             }
         });
 
         return alterQuery;
+    }
+
+    public JsonColumn json(String value) {
+       return addColumn(new JsonColumn(value));
     }
 
     private static class RawColumn extends Column<RawColumn> {

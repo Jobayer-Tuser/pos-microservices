@@ -13,16 +13,18 @@ import java.util.UUID;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
-    Optional<Store> findByOwnerId(UUID ownerId);
 
     @Query("""
-                    SELECT s.id as id,
-                             s.ownerId as owner_id,
-                             s.brandName as name,
-                             s.phoneNumber as phoneNumber,
-                             s.status as status
-                    FROM Store s
-                        ORDER BY s.id ASC
+            SELECT s.id as id,
+                     s.ownerId as owner_id,
+                     s.brandName as name,
+                     s.phoneNumber as phoneNumber,
+                     s.status as status
+            FROM Store s
+                ORDER BY s.id ASC
             """)
     Slice<StoreDto> findAllStore(Pageable pageable);
+
+    Optional<Store> findById(UUID id);
+    Optional<Store> findByOwnerId(UUID ownerId);
 }

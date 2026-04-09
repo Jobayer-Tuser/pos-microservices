@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,12 +28,12 @@ public class StoreController extends Controller {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") Long storeId, @RequestBody StoreUpdateRequest request) throws AccessDeniedException {
+    public ResponseEntity<?> update(@PathVariable("id") UUID storeId, @RequestBody StoreUpdateRequest request) {
         return ok(storeService.updateStore(storeId, request, currentUser()), "Store updated successfully");
     }
 
     @GetMapping("show/{id}")
-    public ResponseEntity<?> show(@PathVariable("id") Long storeId) {
+    public ResponseEntity<?> show(@PathVariable("id") UUID storeId) {
         return ok(storeService.findStoreById(storeId), "Store details retrieved successfully");
     }
 

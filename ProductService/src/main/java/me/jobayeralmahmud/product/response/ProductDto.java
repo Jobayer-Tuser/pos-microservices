@@ -3,12 +3,12 @@ package me.jobayeralmahmud.product.response;
 import me.jobayeralmahmud.product.entity.Product;
 
 import java.util.List;
+import java.util.UUID;
 
 public record ProductDto(
-        Long id,
-        Long storeId,
+        UUID id,
+        UUID storeId,
         String name,
-        String sku,
         String description,
         String imageUrl,
         String brand,
@@ -21,7 +21,6 @@ public record ProductDto(
                 product.getId(),
                 product.getStoreId(),
                 product.getName(),
-                product.getSku(),
                 product.getDescription(),
                 product.getImageUrl(),
                 product.getBrand(),

@@ -2,6 +2,7 @@ package me.jobayeralmahmud.store.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import me.jobayeralmahmud.library.utils.Slugify;
 import me.jobayeralmahmud.store.enums.StoreStatus;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,15 +20,19 @@ import java.util.UUID;
 public class Store {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     private UUID ownerId;
     private String brandName;
-    private String description;
+    private String slug;
     private String email;
     private String phoneNumber;
-    private String address;
-    private String storeType;
+    private String logoUrl;
+    private String currency;
+    private String timezone;
+    private Boolean isVerified;
+    private String description;
+    private String verificationDocumentUrl;
 
     @Enumerated(EnumType.STRING)
     private StoreStatus status;
@@ -42,8 +47,14 @@ public class Store {
 
     @PrePersist
     public void prePersist() {
-        if (status == null) {
+        if (status == null ) {
             status = StoreStatus.INACTIVE;
         }
+
+        if (isVerified == null) {
+            isVerified = false;
+        }
+
+        slug = Slugify.toSlug(brandName);
     }
 }

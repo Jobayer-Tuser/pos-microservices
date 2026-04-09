@@ -10,6 +10,7 @@ import me.jobayeralmahmud.product.response.CategoryDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getCategoryById(Long id) {
+    public Category getCategoryById(UUID id) {
         return findCategoryById(id);
     }
 
@@ -38,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category updateCategory(Long id, UpdateCategoryRequest request) {
+    public Category updateCategory(UUID id, UpdateCategoryRequest request) {
         var category = findCategoryById(id);
         category.setName(request.name());
         category.setDescription(request.description());
@@ -46,16 +47,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(Long id) {
+    public void deleteCategory(UUID id) {
         repository.deleteById(id);
     }
 
     @Override
-    public Category getCategoryReference(Long id) {
+    public Category getCategoryReference(UUID id) {
         return repository.getReferenceById(id);
     }
 
-    private Category findCategoryById(Long id) {
+    private Category findCategoryById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("Category not found with id: " + id));
     }

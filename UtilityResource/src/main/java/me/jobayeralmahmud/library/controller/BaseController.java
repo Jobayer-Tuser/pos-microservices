@@ -17,7 +17,7 @@ public abstract class BaseController {
     /**
      * Helper for 200 OK responses
      */
-    protected <T> ResponseEntity<ApiResponse<?>> ok_list(CursorPageResponse<T> pageResponse, String message) {
+    protected <T> ResponseEntity<ApiResponse<?>> ok(CursorPageResponse<T> pageResponse, String message) {
         return buildResponse(HttpStatus.OK, ApiResponse.success(
                 pageResponse.data(),
                 message,

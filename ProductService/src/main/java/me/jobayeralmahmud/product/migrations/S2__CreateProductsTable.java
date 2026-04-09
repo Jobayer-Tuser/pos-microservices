@@ -12,9 +12,9 @@ public class S2__CreateProductsTable extends BaseMigration {
     @Override
     public void up(Schema schema) throws SQLException {
         schema.create("pos_products", table -> {
-            table.id();
+            table.uuid();
             table.bigInteger("store_id").unsigned();
-            table.foreignId("category_id")
+            table.foreignuuid("category_id")
                     .nullable().references("pos_product_categories")
                     .onUpdateCascade().onDeleteRestrict();
             table.string("name");

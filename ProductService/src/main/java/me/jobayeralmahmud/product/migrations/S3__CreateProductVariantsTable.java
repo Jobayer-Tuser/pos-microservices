@@ -12,8 +12,8 @@ public class S3__CreateProductVariantsTable extends BaseMigration {
     @Override
     public void up(Schema schema) throws SQLException {
         schema.create("pos_product_variants", table -> {
-            table.id();
-            table.foreignId("product_id").references("pos_products")
+            table.uuid();
+            table.foreignuuid("product_id").references("pos_products")
                     .onDeleteRestrict().onUpdateCascade();
             table.string("variant_name");
             table.string("variant_value");

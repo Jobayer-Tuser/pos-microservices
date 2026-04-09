@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -15,6 +18,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         SELECT p FROM Product p
             LEFT JOIN FETCH p.category
         where ( :lastId is null or p.id > :lastId )
+            order by p.id asc
     """)
-    Slice<Product> retrieveAllProducts(@Param("lastId") Long lastID, Pageable pageable);
+    Slice<Product> retrieveAllProducts(@Param("lastId") UUID lastID, Pageable pageable);
+
+    Optional<Product> findById(UUID id);
 }

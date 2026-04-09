@@ -11,7 +11,7 @@ public class S1__CreateCategoriesTable extends BaseMigration {
     @Override
     public void up(Schema schema) throws SQLException {
         schema.create("pos_product_categories", table -> {
-            table.id();
+            table.uuid();
             table.foreignId("parent_id")
                     .nullable().references("pos_product_categories").onDeleteSetNull();
             table.string("name");

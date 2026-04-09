@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,12 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "pos_products")
 public class Product {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long storeId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    private UUID storeId;
     private String name;
-    private String sku;
+    private String slug;
     private String description;
     private String imageUrl;
     private String brand;

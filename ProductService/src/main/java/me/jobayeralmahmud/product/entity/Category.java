@@ -5,6 +5,7 @@ import lombok.*;
 import me.jobayeralmahmud.library.utils.Slugify;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,9 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long parentId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    private UUID parentId;
     private String name;
     private String description;
     private String slug;

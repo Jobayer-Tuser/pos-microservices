@@ -11,6 +11,11 @@ public class EnumColumn extends Column<EnumColumn> {
         this.options = options;
     }
 
+    public EnumColumn(String name, Enum<?>... values) {
+        super(name);
+        this.options = Arrays.stream(values).map(Enum::name).toArray(String[]::new);
+    }
+
     @Override
     protected String sqlType() {
         String values = Arrays.stream(options)

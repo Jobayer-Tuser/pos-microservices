@@ -29,7 +29,7 @@ public class UserController extends Controller {
             @RequestParam(required = false, defaultValue = "0") int size,
             @RequestParam(required = false) Long lastId
     ) {
-        return ok_list(userProfileService.collectUsers(sortBy, pageSize, lastId), "Successfully retrieve the user details please check the list!");
+        return ok(userProfileService.collectUsers(sortBy, pageSize, lastId), "Successfully retrieve the user details please check the list!");
     }
 
     @PostMapping

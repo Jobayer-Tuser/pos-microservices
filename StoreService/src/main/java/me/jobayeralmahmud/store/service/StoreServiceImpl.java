@@ -32,13 +32,13 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreDto findStoreById(Long id) {
+    public StoreDto findStoreById(UUID id) {
         return storeMapper.entityToDto(findStoreByIdOrThrow(id));
     }
 
     @Override
     @Transactional
-    public StoreDto updateStore(Long id, StoreUpdateRequest request, UUID currentUser) {
+    public StoreDto updateStore(UUID id, StoreUpdateRequest request, UUID currentUser) {
         var store = findStoreByIdOrThrow(id);
         verifyStoreOwnership(store, currentUser);
 
@@ -58,7 +58,7 @@ public class StoreServiceImpl implements StoreService {
         return storeRepository.findAllStore(pageable);
     }
 
-    private Store findStoreByIdOrThrow(Long id) {
+    private Store findStoreByIdOrThrow(UUID id) {
         return storeRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("Store not found with id: " + id));
     }

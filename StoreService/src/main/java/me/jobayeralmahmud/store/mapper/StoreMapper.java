@@ -17,8 +17,6 @@ public class StoreMapper {
                 .description(request.description())
                 .email(request.email())
                 .phoneNumber(request.phoneNumber())
-                .address(request.address())
-                .storeType(request.storeType())
                 .build();
     }
 
@@ -37,8 +35,6 @@ public class StoreMapper {
         store.setDescription(request.description());
         store.setEmail(request.email());
         store.setPhoneNumber(request.phoneNumber());
-        store.setAddress(request.address());
-        store.setStoreType(request.storeType());
         return store;
     }
 }
