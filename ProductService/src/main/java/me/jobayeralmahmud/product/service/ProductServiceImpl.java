@@ -68,12 +68,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(UUID id, UpdateProductRequest request) {
+        var productToUpdate = findProductByIdOrThrow(id);
+        var proudct =
         return null;
     }
 
     @Override
     public void deleteProduct(UUID id) {
-
+            productRepository.deleteById(id);
     }
 
     private Product findProductByIdOrThrow(UUID id) {
