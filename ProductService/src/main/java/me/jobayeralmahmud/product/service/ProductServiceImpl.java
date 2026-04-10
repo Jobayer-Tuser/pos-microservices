@@ -68,9 +68,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(UUID id, UpdateProductRequest request) {
-        var productToUpdate = findProductByIdOrThrow(id);
-        var proudct =
-        return null;
+        var product = findProductByIdOrThrow(id);
+
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setBrand(request.brand());
+        product.setImageUrl(request.imageUrl());
+
+        ifValueExistThenPerform(request.categoryId(), categoryService::getCategoryReference, product::setCategory);
+        ifValueExistThenPerform(request.productImages(), CreateProductImageRequest::toEntity, product::addImage);
+        ifValueExistThenPerform(request.productVariants(), CreateProductVariantRequest::toEntity, product::addVariant);
+
+        return productRepository.save(product);
     }
 
     @Override
