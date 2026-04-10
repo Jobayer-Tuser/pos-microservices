@@ -12,7 +12,7 @@ public class S2__CreateStoreAddressTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_store_address", table -> {
             table.uuid();
-            table.foreignuuid("store_id").references("pos_store");
+            table.uuidForeign("store_id").references("pos_store");
             table.string("address_line1");
             table.string("address_line2").nullable();
             table.string("city");

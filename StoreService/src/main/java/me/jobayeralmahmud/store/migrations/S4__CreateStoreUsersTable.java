@@ -12,11 +12,11 @@ public class S4__CreateStoreUsersTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_store_users", table -> {
             table.uuid();
-            table.foreignuuid("store_id").constrained("pos_stores");
+            table.uuidForeign("store_id").constrained("pos_stores");
             table.uuid("user_id");
             table.uuid("role_id");
             table.enumeration("status", "ACTIVE", "INACTIVE").defaultValue("INACTIVE");
-            table.timeStamp("joined_at").defaultCurrentTimestamp();
+            table.timestamp("joined_at").defaultCurrentTimestamp();
             table.timestamps();
         });
     }

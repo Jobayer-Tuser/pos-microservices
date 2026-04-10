@@ -12,7 +12,7 @@ public class S4__CreateProductImagesTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_product_images", table -> {
             table.uuid();
-            table.foreignuuid("product_id").references("pos_products").onDeleteCascade();
+            table.uuidForeign("product_id").constrained("pos_products").onDeleteCascade();
             table.string("image_url", 500);
             table.bool("is_primary").defaultValue(false);
             table.integer("sort_order");

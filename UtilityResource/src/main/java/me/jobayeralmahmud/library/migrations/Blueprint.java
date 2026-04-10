@@ -1,7 +1,5 @@
 package me.jobayeralmahmud.library.migrations;
 
-import me.jobayeralmahmud.library.migrations.columns.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,10 +9,10 @@ import java.util.stream.Stream;
 public class Blueprint {
 
     private String tableName;
-    private final List<Column<?>> columns = new ArrayList<>();
-    private final List<String> columnsToDrop = new ArrayList<>();
-    private final List<String> foreignKeysToDrop = new ArrayList<>();
-    private final List<String> multiColumnUniquesConstraints = new ArrayList<>();
+    private final List<Object> columns             = new ArrayList<>();
+    private final List<String> columnsToDrop       = new ArrayList<>();
+    private final List<String> foreignKeysToDrop   = new ArrayList<>();
+    private final List<String> multiColumnUniques  = new ArrayList<>();
 
     public Blueprint() {}
 
@@ -22,124 +20,117 @@ public class Blueprint {
         this.tableName = tableName;
     }
 
-    private <T extends Column<?>> T addColumn(T col) {
+    public void id() {
+        addColumn("id", DataType.BIGINT).unsigned().autoIncrement().primaryKey();
+    }
+
+    public void uuid() {
+        addColumn("id", "BINARY(16)").primaryKey();
+    }
+
+    public ColumnDefinition tinyInteger(String name) {
+        return addColumn(name, DataType.TINYINT);
+    }
+
+    public ColumnDefinition integer(String name) {
+        return addColumn(name, DataType.INT);
+    }
+
+    public ColumnDefinition bigInteger(String name) {
+        return addColumn(name, DataType.BIGINT);
+    }
+
+    public ColumnDefinition decimal(String name, int precision, int scale) {
+        return addColumn(name, String.format("DECIMAL(%d, %d)", precision, scale));
+    }
+
+    public ColumnDefinition numeric(String name, int precision, int scale) {
+        return addColumn(name, String.format("NUMERIC(%d, %d)", precision, scale));
+    }
+
+    public ColumnDefinition numeric(String name) {
+        return numeric(name, 10, 0);
+    }
+
+    public ColumnDefinition double_(String name) {
+        return addColumn(name, DataType.DOUBLE);
+    }
+
+    public ColumnDefinition string(String name, int length) {
+        return addColumn(name, "VARCHAR(" + length + ")");
+    }
+
+    public ColumnDefinition string(String name) {
+        return string(name, 255);
+    }
+
+    public ColumnDefinition text(String name) {
+        return addColumn(name, DataType.TEXT);
+    }
+
+    public ColumnDefinition json(String name) {
+        return addColumn(name, DataType.JSON);
+    }
+
+    public ColumnDefinition date(String name) {
+        return addColumn(name, DataType.DATE);
+    }
+
+    public ColumnDefinition dateTime(String name) {
+        return addColumn(name, DataType.DATETIME);
+    }
+
+    public ColumnDefinition timestamp(String name) {
+        return addColumn(name, DataType.TIMESTAMP);
+    }
+
+    public ColumnDefinition bool(String name) {
+        return addColumn(name, DataType.BOOLEAN);
+    }
+
+    public ColumnDefinition uuid(String name) {
+        return addColumn(name, DataType.BINARY);
+    }
+
+    public EnumDefinition enumeration(String name, String... options) {
+        var col = new EnumDefinition(name, options);
         columns.add(col);
         return col;
     }
 
-    public void id() {
-        columns.add(new RawColumn("id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY"));
+    public EnumDefinition enumeration(String name, Enum<?>... values) {
+        var col = new EnumDefinition(name, values);
+        columns.add(col);
+        return col;
     }
 
-    public ForeignIdColumn foreignId(String name) {
-        var col = new ForeignIdColumn(name);
-        col.setTable(this.tableName);
-        return addColumn(col);
+    public ForeignKeyDefinition foreignId(String name) {
+        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.INTEGER);
+        col.owningTable(this.tableName);
+        columns.add(col);
+        return col;
     }
 
-    public UUIDColumn uuid() {
-        return addColumn(new UUIDColumn("id"));
-    }
-
-    public UUIDColumn uuid(String name) {
-        return addColumn(new UUIDColumn(name));
-    }
-
-    public ForeignUUIDColumn foreignuuid(String name) {
-        var col = new ForeignUUIDColumn(name);
-        col.setTable(this.tableName);
-        return addColumn(col);
-    }
-
-    public StringColumn string(String name, int length) {
-        return addColumn(new StringColumn(name, length));
-    }
-
-    public StringColumn string(String name) {
-        return addColumn(new StringColumn(name));
-    }
-
-    public DoubleColumn doubleColumn(String name) {
-        return addColumn(new DoubleColumn(name));
-    }
-
-    public NumericColumn numeric(String name, int precision, int scale) {
-        return addColumn(new NumericColumn(name, precision, scale));
-    }
-
-    public NumericColumn numeric(String name) {
-        return addColumn(new NumericColumn(name));
-    }
-
-    public IntegerColumn integer(String name) {
-        return addColumn(new IntegerColumn(name));
-    }
-
-    public BigIntegerColumn bigInteger(String name) {
-        return addColumn(new BigIntegerColumn(name));
-    }
-
-    public TimeStampColumn timeStamp(String name) {
-        return addColumn(new TimeStampColumn(name));
-    }
-
-    public DateTimeColumn datetime(String name) {
-        return addColumn(new DateTimeColumn(name));
-    }
-
-    public DateColumn date(String name) {
-        return addColumn(new DateColumn(name));
-    }
-
-    public TextColumn text(String name) {
-        return addColumn(new TextColumn(name));
-    }
-
-    public BooleanColumn bool(String name) {
-        return addColumn(new BooleanColumn(name));
-    }
-
-    public void unique(String... columnNames) {
-        multiColumnUniquesConstraints.add(String.format("UNIQUE (%s)", String.join(", ", columnNames)));
-    }
-
-    public DecimalColumn decimal(String name, int scale, int precision) {
-        return addColumn(new DecimalColumn(name, scale, precision));
-    }
-
-    public EnumColumn enumeration(String name, String... options) {
-        return addColumn(new EnumColumn(name, options));
-    }
-
-    public EnumColumn enumeration(String name, Enum<?>... values) {
-        return addColumn(new EnumColumn(name, values));
-    }
-
-    public String getSql(String tableName) {
-        Stream<String> definitions = columns.stream().map(Column::getDefinition);
-        Stream<String> constraints = columns.stream()
-                .map(c -> {
-                    if (c instanceof ForeignIdColumn f) return f.getConstraintSql();
-                    if (c instanceof ForeignUUIDColumn f) return f.getConstraintSql();
-                    return null;
-                })
-                .filter(Objects::nonNull);
-
-        String finalQuery = Stream.concat(
-                Stream.concat(definitions, constraints),
-                multiColumnUniquesConstraints.stream()).collect(Collectors.joining(", "));
-
-        return String.format("CREATE TABLE %s (%s)", tableName, finalQuery);
+    public ForeignKeyDefinition uuidForeign(String name) {
+        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.UUID);
+        col.owningTable(this.tableName);
+        columns.add(col);
+        return col;
     }
 
     public void timestamps() {
-        columns.add(new RawColumn("created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"));
-        columns.add(new RawColumn("updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
+        addColumn("created_at", DataType.TIMESTAMP).defaultCurrentTimestamp();
+        addColumn("updated_at", DataType.TIMESTAMP).defaultCurrentTimestamp();
     }
 
     public void softDelete() {
-        columns.add(new RawColumn("deleted_at TIMESTAMP NULL"));
+        addColumn("deleted_at", DataType.TIMESTAMP).nullable();
     }
+
+    public void unique(String... columnNames) {
+        multiColumnUniques.add("UNIQUE (" + String.join(", ", columnNames) + ")");
+    }
+
     public void dropColumn(String name) {
         columnsToDrop.add(name);
     }
@@ -148,57 +139,81 @@ public class Blueprint {
         foreignKeysToDrop.add(String.format("FK_%s_%s", tableName, columnName));
     }
 
+    public String getSql(String tableName) {
+        Stream<String> definitions = columns.stream().map(this::getDefinition);
+        Stream<String> constraints = columns.stream()
+                .map(c -> {
+                    if (c instanceof ForeignKeyDefinition f) return f.getConstraintSql();
+                    return null;
+                })
+                .filter(Objects::nonNull);
+
+        String finalQuery = Stream.concat(
+                Stream.concat(definitions, constraints),
+                multiColumnUniques.stream()
+        ).collect(Collectors.joining(", "));
+
+        return String.format("CREATE TABLE %s (%s)", tableName, finalQuery);
+    }
+
+
     public List<String> getAlterationSql(String tableName) {
-        List<String> alterQuery = new ArrayList<>();
+        List<String> statements = new ArrayList<>();
 
         foreignKeysToDrop.stream()
                 .map(fk -> String.format("ALTER TABLE %s DROP FOREIGN KEY %s", tableName, fk))
-                .forEach(alterQuery::add);
+                .forEach(statements::add);
 
         columnsToDrop.stream()
                 .map(col -> String.format("ALTER TABLE %s DROP COLUMN %s", tableName, col))
-                .forEach(alterQuery::add);
+                .forEach(statements::add);
 
         columns.forEach(column -> {
-            String after = column.afterColumn() != null ? " AFTER " + column.afterColumn() : "";
-            alterQuery.add(String.format("ALTER TABLE %s ADD %s%s", tableName, column.getDefinition(), after));
+            String afterClause = getAfterClause(column);
+            statements.add(String.format("ALTER TABLE %s ADD %s%s",
+                    tableName, getDefinition(column), afterClause));
 
-            if (column instanceof ForeignIdColumn foreignIdCol) {
-                String rule = foreignIdCol.getConstraintSql();
-                if (rule != null) {
-                    alterQuery.add(String.format("ALTER TABLE %s ADD %s", tableName, rule));
-                }
-            } else if (column instanceof ForeignUUIDColumn foreignUuidCol) {
-                String rule = foreignUuidCol.getConstraintSql();
-                if (rule != null) {
-                    alterQuery.add(String.format("ALTER TABLE %s ADD %s", tableName, rule));
+            if (column instanceof ForeignKeyDefinition f) {
+                String constraint = f.getConstraintSql();
+                if (constraint != null) {
+                    statements.add(String.format("ALTER TABLE %s ADD %s", tableName, constraint));
                 }
             }
         });
 
-        return alterQuery;
+        return statements;
     }
 
-    public JsonColumn json(String value) {
-       return addColumn(new JsonColumn(value));
+    private ColumnDefinition addColumn(String name, DataType sqlType) {
+        var col = new ColumnDefinition(name, sqlType);
+        columns.add(col);
+        return col;
     }
 
-    private static class RawColumn extends Column<RawColumn> {
-        private final String definition;
+    private ColumnDefinition addColumn(String name, String sqlType) {
+        var col = new ColumnDefinition(name, sqlType);
+        columns.add(col);
+        return col;
+    }
 
-        public RawColumn(String definition) {
-            super("");
-            this.definition = definition;
-        }
+    private String getDefinition(Object column) {
+        return switch (column) {
+            case String                 s -> s;
+            case ColumnDefinition       c -> c.getSqlDefinition();
+            case EnumDefinition         e -> e.getSqlDefinition();
+            case ForeignKeyDefinition   f -> f.getSqlDefinition();
+            default -> throw new IllegalStateException("Unknown column type: " + column.getClass());
+        };
+    }
 
-        @Override
-        protected String sqlType() {
-            return "";
-        }
+    private String getAfterClause(Object column) {
+       String after = switch (column) {
+            case ColumnDefinition       c -> c.afterColumn();
+            case EnumDefinition         e -> e.afterColumn() ;
+            case ForeignKeyDefinition   f -> f.afterColumn();
+            default -> null;
+        };
 
-        @Override
-        public String getDefinition() {
-            return definition;
-        }
+       return after != null ? " AFTER " + after : "";
     }
 }

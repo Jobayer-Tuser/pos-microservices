@@ -13,7 +13,7 @@ public class S1__CreateUserProfilesTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_user_profiles", table -> {
             table.id();
-            table.foreignuuid("user_id");
+            table.uuidForeign("user_id");
             table.string("first_name").nullable();
             table.string("last_name").nullable();
             table.string("display_name").nullable();

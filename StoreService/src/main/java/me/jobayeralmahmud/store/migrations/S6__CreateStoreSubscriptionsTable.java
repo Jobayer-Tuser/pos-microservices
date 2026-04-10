@@ -17,15 +17,15 @@ public class S6__CreateStoreSubscriptionsTable extends BaseMigration {
 
         schema.create("pos_store_subscriptions", table -> {
             table.uuid();
-            table.foreignuuid("store_id").references("pos_store");
+            table.uuidForeign("store_id").references("pos_store");
             table.string("plan_name");
-            table.doubleColumn("plan_price");
+            table.double_("plan_price");
             table.enumeration("status", SubscriptionStatus.values()).defaultValue(SubscriptionStatus.ACTIVE.name());
             table.enumeration("payment_method", PaymentMethod.values()).defaultValue(PaymentMethod.CREDIT_CARD.name());
             table.enumeration("payment_status", PaymentStatus.values()).defaultValue(PaymentStatus.PENDING.name());
             table.enumeration("billing_cycle", BillingCycle.values()).defaultValue(BillingCycle.MONTHLY.name());
-            table.timeStamp("started_at").defaultCurrentTimestamp();
-            table.timeStamp("ended_at").nullable();
+            table.timestamp("started_at").defaultCurrentTimestamp();
+            table.timestamp("ended_at").nullable();
             table.timestamps();
         });
     }

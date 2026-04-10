@@ -13,15 +13,14 @@ public class S2__CreateProductsTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_products", table -> {
             table.uuid();
-            table.bigInteger("store_id").unsigned();
-            table.foreignuuid("category_id")
-                    .nullable().references("pos_product_categories")
-                    .onUpdateCascade().onDeleteRestrict();
+            table.uuid("store_id");
+            table.uuidForeign("category_id").nullable()
+                    .constrained("pos_product_categories").onUpdateCascade().onDeleteSetNull();
             table.string("name");
-            table.string("sku").unique();
-            table.text("description");
-            table.text("image_url");
-            table.string("brand", 64);
+            table.string("slug").unique();
+            table.text("description").nullable();
+            table.text("image_url").nullable();
+            table.string("brand", 64).nullable();
             table.timestamps();
         });
     }

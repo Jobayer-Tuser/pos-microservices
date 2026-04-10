@@ -13,13 +13,12 @@ public class S5__CreateVerificationTokenTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_verification_token", table -> {
             table.id();
-            table.foreignuuid("user_id")
-                    .constrained("pos_users").onUpdateCascade().onDeleteRestrict();
+            table.uuidForeign("user_id").constrained("pos_users").onUpdateCascade().onDeleteRestrict();
             table.string("token");
             table.string("token_type", 32);
-            table.datetime("created_at");
-            table.datetime("expired_at");
-            table.datetime("verified_at").nullable();
+            table.dateTime("created_at");
+            table.dateTime("expired_at");
+            table.dateTime("verified_at").nullable();
         });
     }
 

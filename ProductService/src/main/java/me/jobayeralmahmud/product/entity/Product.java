@@ -2,6 +2,7 @@ package me.jobayeralmahmud.product.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import me.jobayeralmahmud.library.utils.Slugify;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class Product {
     public void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
+        slug = Slugify.toSlug(name);
     }
 
     @PreUpdate

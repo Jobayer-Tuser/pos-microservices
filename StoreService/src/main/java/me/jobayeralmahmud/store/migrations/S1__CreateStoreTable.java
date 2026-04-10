@@ -13,7 +13,7 @@ public class S1__CreateStoreTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_stores", table -> {
             table.uuid();
-            table.foreignuuid("owner_id");
+            table.uuid("owner_id");
             table.string("brand_name");
             table.string("slug").unique();
             table.string("email").nullable();
