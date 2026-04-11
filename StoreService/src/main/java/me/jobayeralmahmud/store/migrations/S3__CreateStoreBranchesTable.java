@@ -13,7 +13,7 @@ public class S3__CreateStoreBranchesTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_store_branches", table -> {
             table.uuid();
-            table.uuidForeign("store_id").constrained("pos_stores");
+            table.foreignUuid("store_id").referencesTable("pos_stores");
             table.string("name");
             table.string("code").unique();
             table.string("phone_number");

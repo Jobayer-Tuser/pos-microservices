@@ -17,7 +17,7 @@ public class S6__CreateStoreSubscriptionsTable extends BaseMigration {
 
         schema.create("pos_store_subscriptions", table -> {
             table.uuid();
-            table.uuidForeign("store_id").references("pos_store");
+            table.foreignUuid("store_id").referencesTable("pos_store");
             table.string("plan_name");
             table.double_("plan_price");
             table.enumeration("status", SubscriptionStatus.values()).defaultValue(SubscriptionStatus.ACTIVE.name());

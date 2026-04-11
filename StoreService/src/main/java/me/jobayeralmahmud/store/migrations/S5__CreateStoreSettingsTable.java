@@ -12,7 +12,7 @@ public class S5__CreateStoreSettingsTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_store_settings", table -> {
             table.uuid();
-            table.uuidForeign("store_id").references("pos_store");
+            table.foreignUuid("store_id").referencesTable("pos_store");
             table.string("settings_key").unique();
             table.json("settings_value");
             table.timestamps();

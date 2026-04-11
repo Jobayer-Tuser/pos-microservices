@@ -12,7 +12,7 @@ public class S2__CreateUsersTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_users", table -> {
             table.uuid();
-            table.foreignId("role_id").nullable().defaultValue(1).constrained("pos_roles").onUpdateCascade().onDeleteRestrict();
+            table.foreignId("role_id").nullable().defaultValue(1).referencesTable("pos_roles").onUpdateCascade().onDeleteRestrict();
             table.string("email").unique();
             table.string("username");
             table.string("password");

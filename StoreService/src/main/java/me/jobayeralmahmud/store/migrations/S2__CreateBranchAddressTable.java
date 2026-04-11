@@ -12,7 +12,7 @@ public class S2__CreateBranchAddressTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_branches_address", table -> {
             table.uuid();
-            table.uuidForeign("branch_id").constrained("pos_store_branches");
+            table.foreignUuid("branch_id").referencesTable("pos_store_branches");
             table.string("address_line1");
             table.string("city");
             table.string("state").nullable();

@@ -14,8 +14,8 @@ public class S2__CreateProductsTable extends BaseMigration {
         schema.create("pos_products", table -> {
             table.uuid();
             table.uuid("store_id");
-            table.uuidForeign("category_id").nullable()
-                    .constrained("pos_product_categories").onUpdateCascade().onDeleteSetNull();
+            table.foreignUuid("category_id").nullable()
+                    .referencesTable("pos_product_categories").onUpdateCascade().onDeleteSetNull();
             table.string("name");
             table.string("slug").unique();
             table.text("description").nullable();

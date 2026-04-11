@@ -11,7 +11,6 @@ public class EnumDefinition {
     private final String name;
     private final String[] options;
 
-
     /**
      * Modifiers.
      */
@@ -19,7 +18,6 @@ public class EnumDefinition {
     private boolean unique = false;
     private String afterColumn = null;
     private String defaultValue = null;
-
 
     EnumDefinition(String columnName, String... options) {
         this.name = columnName;
@@ -30,7 +28,6 @@ public class EnumDefinition {
         this.name = columnName;
         this.options = Arrays.stream(options).map(Enum::name).toArray(String[]::new);
     }
-
 
     public EnumDefinition nullable() {
         this.nullable = true;
@@ -57,19 +54,19 @@ public class EnumDefinition {
     }
 
     public String getSqlDefinition() {
-        String values = Arrays.stream(options)
+        String enumValues = Arrays.stream(options)
                 .map(o -> "'" + o + "'")
                 .collect(Collectors.joining(", "));
 
-        StringBuilder sb = new StringBuilder();
+        var parts = new java.util.ArrayList<String>();
 
-        sb.append(name).append(" ENUM('").append(values).append("')");
-        sb.append(nullable ? " DEFAULT NULL" : " NOT NULL");
+        parts.add(name + " ENUM(" + enumValues + ")");
+        parts.add(nullable ? "DEFAULT NULL" : "NOT NULL");
+        if (unique)
+            parts.add("UNIQUE");
+        if (defaultValue != null)
+            parts.add("DEFAULT '" + defaultValue + "'");
 
-        if (unique) sb.append(" UNIQUE");
-
-        if (defaultValue != null) sb.append(" DEFAULT '").append(defaultValue).append("'");
-
-        return sb.toString();
+        return String.join(" ", parts);
     }
 }

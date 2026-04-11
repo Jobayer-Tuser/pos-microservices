@@ -1,5 +1,7 @@
 package me.jobayeralmahmud.library.migrations;
 
+import java.util.ArrayList;
+
 public class ForeignKeyDefinition {
     public enum KeyType {
         INTEGER("BIGINT UNSIGNED"),
@@ -27,9 +29,9 @@ public class ForeignKeyDefinition {
     private Object defaultValue;
 
     /**
-     * Constrained fields.
+     * referencesTable fields.
      */
-    private boolean constrained = false;
+    private boolean referencesTable = false;
     private String referencedTable = null;
     private String referencedColumn = "id";
     private String onUpdate = "CASCADE";
@@ -64,21 +66,14 @@ public class ForeignKeyDefinition {
         return this;
     }
 
-    public ForeignKeyDefinition constrained() {
-        this.constrained = true;
-        String base = columnName.endsWith("_id") ? columnName.substring(0, columnName.length() - 3) : columnName;
-        this.referencedTable = base + "s";
+    public ForeignKeyDefinition referencesTable(String table) {
+        this.referencesTable = true;
+        this.referencedTable = table;
         return this;
     }
 
-    public ForeignKeyDefinition constrained(String referencedTable) {
-        this.constrained = true;
-        this.referencedTable = referencedTable;
-        return this;
-    }
-
-    public ForeignKeyDefinition references(String referencedColumn) {
-        this.referencedColumn = referencedColumn;
+    public ForeignKeyDefinition referencesColumn(String column) {
+        this.referencedColumn = column;
         return this;
     }
 
@@ -90,6 +85,7 @@ public class ForeignKeyDefinition {
     public ForeignKeyDefinition onDeleteSetNull() {
         this.onDelete = "SET NULL";
         return this;
+
     }
 
     public ForeignKeyDefinition onDeleteRestrict() {
@@ -117,21 +113,24 @@ public class ForeignKeyDefinition {
     }
 
     public String getSqlDefinition() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(columnName).append(" ").append(keyType.sqlType);
+        var parts = new ArrayList<String>();
 
-        sb.append(nullable ? " DEFAULT NULL" : " NOT NULL");
-        if (unique) sb.append(" UNIQUE");
-        else if (defaultValue != null) sb.append(" DEFAULT '").append(defaultValue).append("'");
+        parts.add(columnName + " " + keyType.sqlType);
+        parts.add(nullable ? "DEFAULT NULL" : "NOT NULL");
+        if (unique) parts.add("UNIQUE");
+        else if (defaultValue != null) parts.add("DEFAULT '" + defaultValue + "'");
 
-        return sb.toString();
+        return String.join(" ", parts);
     }
 
     public String getConstraintSql() {
-        if (!constrained)
-            return null;
+        if (!referencesTable) return null;
+        if (referencedTable == null) {
+            throw new IllegalStateException(String.format("Foreign key %s is referencesTable but has no referenced table, referencesTable( %s ) or .referencesTable( %s ) to set it.", columnName, referencedTable, referencedTable));
+
+        }
         return String.format(
-            "CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s(%s) ON UPDATE %s ON DELETE %s",
+            "CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s (%s) ON UPDATE %s ON DELETE %s",
             owningTable, columnName, columnName, referencedTable, referencedColumn, onUpdate, onDelete
         );
     }

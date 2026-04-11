@@ -1,5 +1,7 @@
 package me.jobayeralmahmud.library.migrations;
 
+import java.util.ArrayList;
+
 public class ColumnDefinition {
 
     // Core properties.
@@ -13,6 +15,7 @@ public class ColumnDefinition {
     private boolean primaryKey = false;
     private boolean autoIncrement = false;
     private boolean defaultCurrentTimestamp = false;
+    private boolean onUpdateCurrentTimestamp = false;
 
     // Default value can be of any type (String, Number, Boolean, etc.)
     private Object defaultValue;
@@ -30,6 +33,7 @@ public class ColumnDefinition {
 
     /**
      * Fluent modifiers.
+     * 
      * @return this for chaining
      */
     public ColumnDefinition nullable() {
@@ -62,6 +66,11 @@ public class ColumnDefinition {
         return this;
     }
 
+    public ColumnDefinition onUpdateCurrentTimestamp() {
+        this.onUpdateCurrentTimestamp = true;
+        return this;
+    }
+
     public ColumnDefinition defaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
         return this;
@@ -78,17 +87,26 @@ public class ColumnDefinition {
 
     // Render the SQL definition
     public String getSqlDefinition() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(name).append(" ").append(dataType);
+        var parts = new ArrayList<String>();
 
-        if (unsigned) sb.append(" UNSIGNED");
-        if (autoIncrement) sb.append(" AUTO_INCREMENT");
-        if (primaryKey) sb.append(" PRIMARY KEY");
-        sb.append(nullable ? " DEFAULT NULL" : " NOT NULL");
-        if (unique) sb.append(" UNIQUE");
-        if (defaultCurrentTimestamp) sb.append(" DEFAULT CURRENT_TIMESTAMP");
-        else if (defaultValue != null) sb.append(" DEFAULT '").append(defaultValue).append("'");
+        parts.add(name + " " + dataType);
 
-        return sb.toString();
+        if (unsigned)
+            parts.add("UNSIGNED");
+        if (autoIncrement)
+            parts.add("AUTO_INCREMENT");
+        if (primaryKey)
+            parts.add("PRIMARY KEY");
+        parts.add(nullable ? "DEFAULT NULL" : "NOT NULL");
+        if (unique)
+            parts.add("UNIQUE");
+        if (defaultCurrentTimestamp)
+            parts.add("DEFAULT CURRENT_TIMESTAMP");
+        else if (defaultValue != null)
+            parts.add("DEFAULT " + defaultValue);
+        if (onUpdateCurrentTimestamp)
+            parts.add("ON UPDATE CURRENT_TIMESTAMP");
+
+        return String.join(" ", parts);
     }
 }

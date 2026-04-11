@@ -13,7 +13,7 @@ public class S5__CreateVerificationTokenTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_verification_token", table -> {
             table.id();
-            table.uuidForeign("user_id").constrained("pos_users").onUpdateCascade().onDeleteRestrict();
+            table.foreignUuid("user_id").referencesTable("pos_users").onUpdateCascade().onDeleteRestrict();
             table.string("token");
             table.string("token_type", 32);
             table.dateTime("created_at");

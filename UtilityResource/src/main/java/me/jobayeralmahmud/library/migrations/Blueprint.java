@@ -8,13 +8,11 @@ import java.util.stream.Stream;
 
 public class Blueprint {
 
-    private String tableName;
+    private final String tableName;
     private final List<Object> columns             = new ArrayList<>();
     private final List<String> columnsToDrop       = new ArrayList<>();
     private final List<String> foreignKeysToDrop   = new ArrayList<>();
     private final List<String> multiColumnUniques  = new ArrayList<>();
-
-    public Blueprint() {}
 
     public Blueprint(String tableName) {
         this.tableName = tableName;
@@ -25,7 +23,11 @@ public class Blueprint {
     }
 
     public void uuid() {
-        addColumn("id", "BINARY(16)").primaryKey();
+        addColumn("id", DataType.BINARY(16)).primaryKey();
+    }
+
+    public ColumnDefinition uuid(String name) {
+        return addColumn(name, DataType.BINARY(16));
     }
 
     public ColumnDefinition tinyInteger(String name) {
@@ -41,11 +43,15 @@ public class Blueprint {
     }
 
     public ColumnDefinition decimal(String name, int precision, int scale) {
-        return addColumn(name, String.format("DECIMAL(%d, %d)", precision, scale));
+        return addColumn(name, DataType.DECIMAL(precision, scale));
+    }
+
+    public ColumnDefinition decimal(String name) {
+        return decimal(name, 12, 2);
     }
 
     public ColumnDefinition numeric(String name, int precision, int scale) {
-        return addColumn(name, String.format("NUMERIC(%d, %d)", precision, scale));
+        return addColumn(name, DataType.NUMERIC(precision, scale));
     }
 
     public ColumnDefinition numeric(String name) {
@@ -57,7 +63,7 @@ public class Blueprint {
     }
 
     public ColumnDefinition string(String name, int length) {
-        return addColumn(name, "VARCHAR(" + length + ")");
+        return addColumn(name, DataType.VARCHAR(length));
     }
 
     public ColumnDefinition string(String name) {
@@ -88,8 +94,21 @@ public class Blueprint {
         return addColumn(name, DataType.BOOLEAN);
     }
 
-    public ColumnDefinition uuid(String name) {
-        return addColumn(name, DataType.BINARY);
+    /**
+     * Creates a UUID foreign key column (BINARY(16)).
+     */
+    public ForeignKeyDefinition foreignUuid(String name) {
+        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.UUID);
+        col.owningTable(this.tableName);
+        columns.add(col);
+        return col;
+    }
+
+    public ForeignKeyDefinition foreignId(String name) {
+        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.INTEGER);
+        col.owningTable(this.tableName);
+        columns.add(col);
+        return col;
     }
 
     public EnumDefinition enumeration(String name, String... options) {
@@ -104,23 +123,9 @@ public class Blueprint {
         return col;
     }
 
-    public ForeignKeyDefinition foreignId(String name) {
-        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.INTEGER);
-        col.owningTable(this.tableName);
-        columns.add(col);
-        return col;
-    }
-
-    public ForeignKeyDefinition uuidForeign(String name) {
-        var col = new ForeignKeyDefinition(name, ForeignKeyDefinition.KeyType.UUID);
-        col.owningTable(this.tableName);
-        columns.add(col);
-        return col;
-    }
-
     public void timestamps() {
-        addColumn("created_at", DataType.TIMESTAMP).defaultCurrentTimestamp();
-        addColumn("updated_at", DataType.TIMESTAMP).defaultCurrentTimestamp();
+        addColumn("created_at", DataType.TIMESTAMP).nullable().defaultCurrentTimestamp();
+        addColumn("updated_at", DataType.TIMESTAMP).nullable().defaultCurrentTimestamp().onUpdateCurrentTimestamp();
     }
 
     public void softDelete() {
@@ -136,7 +141,7 @@ public class Blueprint {
     }
 
     public void dropForeign(String columnName) {
-        foreignKeysToDrop.add(String.format("FK_%s_%s", tableName, columnName));
+        foreignKeysToDrop.add(String.format("fk_%s_%s", tableName, columnName));
     }
 
     public String getSql(String tableName) {
