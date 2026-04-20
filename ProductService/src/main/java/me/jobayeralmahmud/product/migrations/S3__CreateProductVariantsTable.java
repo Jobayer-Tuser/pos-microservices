@@ -2,6 +2,7 @@ package me.jobayeralmahmud.product.migrations;
 
 import me.jobayeralmahmud.library.migrations.BaseMigration;
 import me.jobayeralmahmud.library.migrations.Schema;
+import me.jobayeralmahmud.product.enums.ProductStatus;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -13,7 +14,6 @@ public class S3__CreateProductVariantsTable extends BaseMigration {
     public void up(Schema schema) throws SQLException {
         schema.create("pos_product_variants", table -> {
             table.uuid();
-            table.uuid("store_id");
             table.foreignUuid("product_id").referencesTable("pos_products")
                     .onDeleteCascade().onUpdateCascade();
             table.string("sku").unique();
@@ -22,7 +22,7 @@ public class S3__CreateProductVariantsTable extends BaseMigration {
             table.decimal("price");
             table.decimal("sell_price");
             table.integer("stock_quantity");
-            table.string("status", 20).defaultValue("IN_STOCK");
+            table.enumeration("status", ProductStatus.values()).defaultValue(ProductStatus.IN_STOCK.name());
         });
     }
 

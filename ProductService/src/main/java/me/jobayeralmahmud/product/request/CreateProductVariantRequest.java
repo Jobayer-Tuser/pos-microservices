@@ -12,20 +12,20 @@ public record CreateProductVariantRequest(
 
         @NotBlank(message = "At least one Variant value is required")
         String variantValue,
-
+        String sku,
         @NotNull(message = "Product Price is required")
         double price,
         double sellPrice,
 
         @NotNull(message = "Stock Quantity is required")
         int stockQuantity,
-
         ProductStatus status
 ) {
     public ProductVariant toEntity() {
         return ProductVariant.builder()
                 .variantName(variantName)
                 .variantValue(variantValue)
+                .sku(sku)
                 .price(price)
                 .sellPrice(sellPrice)
                 .stockQuantity(stockQuantity)

@@ -1,5 +1,6 @@
 package me.jobayeralmahmud.product.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jobayeralmahmud.library.utils.Slugify;
@@ -23,8 +24,8 @@ public class Category {
     private String description;
     private String slug;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
-    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Product> products;
 
     @PrePersist @PreUpdate

@@ -19,10 +19,9 @@ public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private UUID storeId;
+    private String sku;
     private String variantName;
     private String variantValue;
-    private String sku;
     private double price;
     private double sellPrice;
     private int stockQuantity;
