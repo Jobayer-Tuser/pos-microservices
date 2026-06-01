@@ -69,4 +69,24 @@ public class EnumDefinition {
 
         return String.join(" ", parts);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String[] getOptions() {
+        return options;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 }

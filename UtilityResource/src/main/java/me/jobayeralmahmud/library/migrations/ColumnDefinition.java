@@ -109,4 +109,44 @@ public class ColumnDefinition {
 
         return String.join(" ", parts);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public Object getDataType() {
+        return dataType;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public boolean isUnsigned() {
+        return unsigned;
+    }
+
+    public boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    public boolean isAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public boolean isDefaultCurrentTimestamp() {
+        return defaultCurrentTimestamp;
+    }
+
+    public boolean isOnUpdateCurrentTimestamp() {
+        return onUpdateCurrentTimestamp;
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
 }

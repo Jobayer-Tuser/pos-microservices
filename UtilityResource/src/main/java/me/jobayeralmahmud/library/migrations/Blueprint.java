@@ -9,10 +9,10 @@ import java.util.stream.Stream;
 public class Blueprint {
 
     private final String tableName;
-    private final List<Object> columns             = new ArrayList<>();
-    private final List<String> columnsToDrop       = new ArrayList<>();
-    private final List<String> foreignKeysToDrop   = new ArrayList<>();
-    private final List<String> multiColumnUniques  = new ArrayList<>();
+    private final List<Object> columns = new ArrayList<>();
+    private final List<String> columnsToDrop = new ArrayList<>();
+    private final List<String> foreignKeysToDrop = new ArrayList<>();
+    private final List<String> multiColumnUniques = new ArrayList<>();
 
     public Blueprint(String tableName) {
         this.tableName = tableName;
@@ -148,19 +148,18 @@ public class Blueprint {
         Stream<String> definitions = columns.stream().map(this::getDefinition);
         Stream<String> constraints = columns.stream()
                 .map(c -> {
-                    if (c instanceof ForeignKeyDefinition f) return f.getConstraintSql();
+                    if (c instanceof ForeignKeyDefinition f)
+                        return f.getConstraintSql();
                     return null;
                 })
                 .filter(Objects::nonNull);
 
         String finalQuery = Stream.concat(
                 Stream.concat(definitions, constraints),
-                multiColumnUniques.stream()
-        ).collect(Collectors.joining(", "));
+                multiColumnUniques.stream()).collect(Collectors.joining(", "));
 
         return String.format("CREATE TABLE %s (%s)", tableName, finalQuery);
     }
-
 
     public List<String> getAlterationSql(String tableName) {
         List<String> statements = new ArrayList<>();
@@ -203,22 +202,42 @@ public class Blueprint {
 
     private String getDefinition(Object column) {
         return switch (column) {
-            case String                 s -> s;
-            case ColumnDefinition       c -> c.getSqlDefinition();
-            case EnumDefinition         e -> e.getSqlDefinition();
-            case ForeignKeyDefinition   f -> f.getSqlDefinition();
+            case String s -> s;
+            case ColumnDefinition c -> c.getSqlDefinition();
+            case EnumDefinition e -> e.getSqlDefinition();
+            case ForeignKeyDefinition f -> f.getSqlDefinition();
             default -> throw new IllegalStateException("Unknown column type: " + column.getClass());
         };
     }
 
     private String getAfterClause(Object column) {
-       String after = switch (column) {
-            case ColumnDefinition       c -> c.afterColumn();
-            case EnumDefinition         e -> e.afterColumn() ;
-            case ForeignKeyDefinition   f -> f.afterColumn();
+        String after = switch (column) {
+            case ColumnDefinition c -> c.afterColumn();
+            case EnumDefinition e -> e.afterColumn();
+            case ForeignKeyDefinition f -> f.afterColumn();
             default -> null;
         };
 
-       return after != null ? " AFTER " + after : "";
+        return after != null ? " AFTER " + after : "";
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public List<Object> getColumns() {
+        return columns;
+    }
+
+    public List<String> getColumnsToDrop() {
+        return columnsToDrop;
+    }
+
+    public List<String> getForeignKeysToDrop() {
+        return foreignKeysToDrop;
+    }
+
+    public List<String> getMultiColumnUniques() {
+        return multiColumnUniques;
     }
 }

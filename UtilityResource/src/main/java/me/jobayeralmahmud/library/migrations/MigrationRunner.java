@@ -17,14 +17,11 @@ public class MigrationRunner {
             )
             """;
 
-    private static final String SELECT_MIGRATIONS_SQL =
-            "SELECT migration_tables FROM schema_migrations ORDER BY id ASC";
+    private static final String SELECT_MIGRATIONS_SQL = "SELECT migration_tables FROM schema_migrations ORDER BY id ASC";
 
-    private static final String INSERT_MIGRATION_SQL =
-            "INSERT INTO schema_migrations (migration_tables) VALUES (?)";
+    private static final String INSERT_MIGRATION_SQL = "INSERT INTO schema_migrations (migration_tables) VALUES (?)";
 
-    private static final String DELETE_MIGRATION_SQL =
-            "DELETE FROM schema_migrations WHERE migration_tables = ?";
+    private static final String DELETE_MIGRATION_SQL = "DELETE FROM schema_migrations WHERE migration_tables = ?";
 
     private final Connection connection;
 
@@ -57,7 +54,8 @@ public class MigrationRunner {
      * Reverts the most recently executed migrations.
      *
      * @param migrations The full list of available migration beans.
-     * @param steps      How many migrations to roll back. Use {@link Integer#MAX_VALUE} for all.
+     * @param steps      How many migrations to roll back. Use
+     *                   {@link Integer#MAX_VALUE} for all.
      */
     public void rollback(List<BaseMigration> migrations, int steps) throws SQLException {
         ensureMigrationsTableExists();
@@ -68,7 +66,8 @@ public class MigrationRunner {
             return;
         }
 
-        List<String> toRollback = new ArrayList<>(executed.subList(Math.max(0, executed.size() - steps), executed.size()));
+        List<String> toRollback = new ArrayList<>(
+                executed.subList(Math.max(0, executed.size() - steps), executed.size()));
         Collections.reverse(toRollback);
 
         for (String name : toRollback) {
@@ -138,8 +137,9 @@ public class MigrationRunner {
     private List<String> getExecutedMigrations() throws SQLException {
         List<String> executed = new ArrayList<>();
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(SELECT_MIGRATIONS_SQL)) {
-            while (rs.next()) executed.add(rs.getString("migration_tables"));
+                ResultSet rs = stmt.executeQuery(SELECT_MIGRATIONS_SQL)) {
+            while (rs.next())
+                executed.add(rs.getString("migration_tables"));
         }
         return executed;
     }
@@ -154,8 +154,13 @@ public class MigrationRunner {
 
     // --- Logging ---
 
-    private static void info(String message)  { System.out.println(message); }
-    private static void error(String message) { System.err.println(message); }
+    private static void info(String message) {
+        System.out.println(message);
+    }
+
+    private static void error(String message) {
+        System.err.println(message);
+    }
 
     // --- Functional interface ---
 

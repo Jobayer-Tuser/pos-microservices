@@ -8,6 +8,7 @@ public class ForeignKeyDefinition {
         UUID("BINARY(16)");
 
         private final String sqlType;
+
         KeyType(String sqlType) {
             this.sqlType = sqlType;
         }
@@ -117,21 +118,69 @@ public class ForeignKeyDefinition {
 
         parts.add(columnName + " " + keyType.sqlType);
         parts.add(nullable ? "DEFAULT NULL" : "NOT NULL");
-        if (unique) parts.add("UNIQUE");
-        else if (defaultValue != null) parts.add("DEFAULT '" + defaultValue + "'");
+        if (unique)
+            parts.add("UNIQUE");
+        else if (defaultValue != null)
+            parts.add("DEFAULT '" + defaultValue + "'");
 
         return String.join(" ", parts);
     }
 
     public String getConstraintSql() {
-        if (!referencesTable) return null;
+        if (!referencesTable)
+            return null;
         if (referencedTable == null) {
-            throw new IllegalStateException(String.format("Foreign key %s is referencesTable but has no referenced table, referencesTable( %s ) or .referencesTable( %s ) to set it.", columnName, referencedTable, referencedTable));
+            throw new IllegalStateException(String.format(
+                    "Foreign key %s is referencesTable but has no referenced table, referencesTable( %s ) or .referencesTable( %s ) to set it.",
+                    columnName, referencedTable, referencedTable));
 
         }
         return String.format(
-            "CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s (%s) ON UPDATE %s ON DELETE %s",
-            owningTable, columnName, columnName, referencedTable, referencedColumn, onUpdate, onDelete
-        );
+                "CONSTRAINT fk_%s_%s FOREIGN KEY (%s) REFERENCES %s (%s) ON UPDATE %s ON DELETE %s",
+                owningTable, columnName, columnName, referencedTable, referencedColumn, onUpdate, onDelete);
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public KeyType getKeyType() {
+        return keyType;
+    }
+
+    public String getOwningTable() {
+        return owningTable;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
+    public boolean isReferencesTable() {
+        return referencesTable;
+    }
+
+    public String getReferencedTable() {
+        return referencedTable;
+    }
+
+    public String getReferencedColumn() {
+        return referencedColumn;
+    }
+
+    public String getOnUpdate() {
+        return onUpdate;
+    }
+
+    public String getOnDelete() {
+        return onDelete;
     }
 }
