@@ -1,10 +1,6 @@
 package me.jobayeralmahmud.library.migrations.seeders.factory;
 
-import lombok.RequiredArgsConstructor;
-import org.booking.users.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-
+/*
 @Component
 @RequiredArgsConstructor
 public class UserFactory extends Factory<User> {
@@ -20,4 +16,4 @@ public class UserFactory extends Factory<User> {
             .password(passwordEncoder.encode("SuperSecretPass"))
             .build();
     }
-}
+}*/
