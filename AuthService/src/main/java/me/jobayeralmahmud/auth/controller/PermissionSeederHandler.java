@@ -1,26 +1,26 @@
 package me.jobayeralmahmud.auth.controller;
 
-import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.config.Routes;
+import jakarta.validation.Validator;
 import me.jobayeralmahmud.auth.entity.Permission;
-import me.jobayeralmahmud.library.response.ApiResponse;
 import me.jobayeralmahmud.auth.repository.PermissionRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import me.jobayeralmahmud.library.controller.BaseHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.List;
 
-// @RestController
-// @RequestMapping(Routes.Auth.BASE)
-@RequiredArgsConstructor
-public class PermissionsSeederBaseController extends Controller {
+@Component
+public class PermissionSeederHandler extends BaseHandler {
 
     private final PermissionRepository repository;
 
-    @PostMapping(Routes.Seed.PERMISSIONS)
-    public ResponseEntity<ApiResponse<List<Permission>>> insertPermissions() {
+    public PermissionSeederHandler(Validator validator, PermissionRepository repository) {
+        super(validator);
+        this.repository = repository;
+    }
+
+    public ServerResponse insertPermissions(ServerRequest request) {
         List<String> permissions = List.of("READ_USER", "EDIT_USER", "DELETE_USER");
         List<Permission> roleEntity = permissions.stream()
                 .filter(permission -> repository.findByName(permission).isEmpty())

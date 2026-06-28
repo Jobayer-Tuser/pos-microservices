@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
-@RestController
-@RequestMapping(Routes.Auth.BASE)
+// @RestController
+// @RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class AuthController extends Controller {
 

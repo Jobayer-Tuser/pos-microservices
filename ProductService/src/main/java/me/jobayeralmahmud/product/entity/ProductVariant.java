@@ -10,10 +10,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "pos_product_variants")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "pos_product_variants")
 public class ProductVariant {
 
     @Id

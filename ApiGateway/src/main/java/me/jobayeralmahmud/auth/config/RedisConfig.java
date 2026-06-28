@@ -1,5 +1,8 @@
 package me.jobayeralmahmud.auth.config;
 
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -10,7 +13,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
+
+    private final RedisProperties redisProperties;
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory connectionFactory) {
@@ -32,5 +38,15 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new StringRedisSerializer());
         return template;
+    }
+
+    @Bean
+    public RedisClient redisClient() {
+        return RedisClient.create(
+            RedisURI.builder()
+                    .withHost(redisProperties.host())
+                    .withPort(redisProperties.port())
+                    .build()
+        );
     }
 }

@@ -3,6 +3,9 @@ package me.jobayeralmahmud.product.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jobayeralmahmud.library.utils.Slugify;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,18 +19,38 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "pos_products")
+@ToString(onlyExplicitlyIncluded = true)
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
+
+    @ToString.Include
     private UUID storeId;
+
+    @ToString.Include
     private String name;
+
+    @ToString.Include
     private String slug;
+
     private String description;
     private String imageUrl;
+
+    @ToString.Include
     private String brand;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    @ToString.Include
     private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    @ToString.Include
     private Instant updatedAt;
 
     @ManyToOne
@@ -43,15 +66,9 @@ public class Product {
     private List<ProductImage> images = new ArrayList<>();
 
     @PrePersist
-    public void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-        slug = Slugify.toSlug(name);
-    }
-
     @PreUpdate
-    public void onUpdate() {
-        updatedAt = Instant.now();
+    public void generateSlug() {
+        this.slug = Slugify.toSlug(name);
     }
 
     public void addVariant(ProductVariant variant) {
@@ -72,5 +89,18 @@ public class Product {
     public void removeImage(ProductImage image) {
         images.remove(image);
         image.setProduct(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id != null && id.equals(product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

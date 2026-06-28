@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RestController
+// @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dev/api/v1/store")
+// @RequestMapping("/dev/api/v1/store")
 public class StoreController extends Controller {
 
     private final StoreService storeService;

@@ -4,8 +4,8 @@ spring:
   application:
     name: ApiGateway
 
-#  config:
-#    import: file:.env[.properties]
+  config:
+    import: optional:file:.env[.properties]
 
   jwt:
     secretKey: ${JWT_SECRET}
@@ -22,9 +22,9 @@ spring:
     gateway:
       server:
         webflux:
-#          discovery:
-#            locator:
-#              enabled: true
+          discovery:
+            locator:
+              enabled: true
 #              lower-case-service-id: true
           routes:
             - id: auth_service
@@ -59,3 +59,9 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://${EUREKA_SERVER_HOST:localhost}:${EUREKA_SERVER_PORT:8761}/eureka/
+
+rate-limiter:
+  capacity : 10
+  refill-rate: 5
+  api-server-url: http://localhost:9010
+  timeout: 5000

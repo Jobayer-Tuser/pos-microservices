@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class ApiGatewayApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 }

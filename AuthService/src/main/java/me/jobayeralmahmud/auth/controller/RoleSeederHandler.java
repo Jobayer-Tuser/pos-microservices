@@ -1,26 +1,26 @@
 package me.jobayeralmahmud.auth.controller;
 
-import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.config.Routes;
+import jakarta.validation.Validator;
 import me.jobayeralmahmud.auth.entity.Role;
-import me.jobayeralmahmud.library.response.ApiResponse;
 import me.jobayeralmahmud.auth.repository.RoleRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import me.jobayeralmahmud.library.controller.BaseHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.List;
 
-// @RestController
-// @RequestMapping(Routes.Auth.BASE)
-@RequiredArgsConstructor
-public class RoleSeederBaseController extends Controller {
+@Component
+public class RoleSeederHandler extends BaseHandler {
 
     private final RoleRepository repository;
 
-    @PostMapping(Routes.Seed.ROLES)
-    public ResponseEntity<ApiResponse<List<Role>>> insertRole() {
+    public RoleSeederHandler(Validator validator, RoleRepository repository) {
+        super(validator);
+        this.repository = repository;
+    }
+
+    public ServerResponse insertRole(ServerRequest request) {
         List<String> roles = List.of("USER", "ADMIN", "EDITOR", "OPERATOR");
         List<Role> roleEntity = roles.stream()
                 .filter(role -> repository.findByName(role).isEmpty())

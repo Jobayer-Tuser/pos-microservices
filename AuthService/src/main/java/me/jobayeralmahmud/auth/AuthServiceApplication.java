@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @SpringBootApplication(scanBasePackages = { "me.jobayeralmahmud" })
 public class AuthServiceApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(AuthServiceApplication.class, args);
     }
 }
