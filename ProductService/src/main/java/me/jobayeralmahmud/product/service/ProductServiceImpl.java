@@ -9,14 +9,14 @@ import me.jobayeralmahmud.product.request.CreateProductImageRequest;
 import me.jobayeralmahmud.product.request.CreateProductRequest;
 import me.jobayeralmahmud.product.request.CreateProductVariantRequest;
 import me.jobayeralmahmud.product.request.UpdateProductRequest;
-import me.jobayeralmahmud.product.response.ProductDto;
 import me.jobayeralmahmud.product.response.PaginateProduct;
-import org.jspecify.annotations.NonNull;
+import me.jobayeralmahmud.product.response.ProductDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final CategoryService categoryService;
@@ -31,17 +32,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginateProduct<ProductDto> getAllProducts(UUID lastId, Pageable pageable) {
-        var sliceProduct = productRepository.retrieveAllProducts(lastId, pageable);
-        var products = sliceProduct.getContent();
+        var slice = productRepository.retrieveAllProducts(lastId, pageable);
+        var products = slice.getContent();
+        boolean hasNext = slice.hasNext();
 
-        if (products.isEmpty()) {
-            return new PaginateProduct<>(Collections.emptyList(), pageable.getPageSize(), null, false);
-        }
+        UUID nextId = hasNext ? products.getLast().getId() : null;
 
-        var nextId = sliceProduct.hasNext() ? products.getLast().getId() : null;
-        var productDtos = mapProducts(products);
-
-        return new PaginateProduct<>(productDtos, pageable.getPageSize(), nextId, sliceProduct.hasNext());
+        return new PaginateProduct<>(ProductDto.fromEntity(products), pageable.getPageSize(), nextId, hasNext);
     }
 
     @Override
@@ -50,70 +47,80 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDto createProduct(CreateProductRequest request) {
         var product = request.toEntity();
-        var variants = request.productVariants();
 
-        if (variants == null || variants.isEmpty()) {
+        attachCategory(product, request.categoryId());
+        attachImages(product, request.productImages());
+
+        if (request.productVariants().isEmpty()) {
             mapMasterVariant(request, product);
-        } else {
-            ifValueExistThenPerform(variants, CreateProductVariantRequest::toEntity, product::addVariant);
         }
 
-        ifValueExistThenPerform(request.categoryId(), categoryService::getCategoryReference, product::setCategory);
-        ifValueExistThenPerform(request.productImages(), CreateProductImageRequest::toEntity, product::addImage);
+        attachVariants(product, request.productVariants());
 
         return ProductDto.fromEntity(productRepository.save(product));
     }
 
     @Override
+    @Transactional
     public Product updateProduct(UUID id, UpdateProductRequest request) {
         var product = findProductByIdOrThrow(id);
 
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setBrand(request.brand());
-        product.setImageUrl(request.imageUrl());
+        product.update(request);
 
-        ifValueExistThenPerform(request.categoryId(), categoryService::getCategoryReference, product::setCategory);
-        ifValueExistThenPerform(request.productImages(), CreateProductImageRequest::toEntity, product::addImage);
-        ifValueExistThenPerform(request.productVariants(), CreateProductVariantRequest::toEntity, product::addVariant);
+        attachCategory(product, request.categoryId());
+        attachImages(product, request.productImages());
+        attachVariants(product, request.productVariants());
 
-        return productRepository.save(product);
+        return product;
     }
 
     @Override
+    @Transactional
     public void deleteProduct(UUID id) {
-        productRepository.deleteById(id);
+        var product = findProductByIdOrThrow(id);
+        productRepository.delete(product);
+    }
+
+    private void attachCategory(Product product, UUID categoryId) {
+        applyIfPresent(categoryId, categoryService::getCategoryReference, product::setCategory);
+    }
+
+    private void attachImages(Product product,  List<CreateProductImageRequest> productImages) {
+        mapEach(productImages, CreateProductImageRequest::toEntity, product::addImage);
+    }
+
+    private void attachVariants(Product product, List<CreateProductVariantRequest> productVariants) {
+        mapEach(productVariants, CreateProductVariantRequest::toEntity, product::addVariant);
     }
 
     private Product findProductByIdOrThrow(UUID id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourcesNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourcesNotFoundException("Product not found with id: " + id));
     }
 
-    private static @NonNull List<ProductDto> mapProducts(List<Product> products) {
-        return products.stream()
-                .map(ProductDto::fromEntity)
-                .toList();
+    private <T, R> void applyIfPresent(T value, Function<T, R> map, Consumer<R> consume) {
+        Optional.ofNullable(value)
+                .map(map)
+                .ifPresent(consume);
     }
 
-    private <T, R> void ifValueExistThenPerform(T value, Function<T, R> map, Consumer<R> consume) {
-        Optional.ofNullable(value).map(map).ifPresent(consume);
-    }
-
-    private <T, R> void ifValueExistThenPerform(List<T> list, Function<T, R> map, Consumer<R> consume) {
+    private <T, R> void mapEach(List<T> list, Function<T, R> map, Consumer<R> consume) {
         Optional.ofNullable(list).ifPresent(
-                items -> items.stream().map(map).forEach(consume));
+                items -> items.stream()
+                        .map(map)
+                        .forEach(consume));
     }
 
     private static void mapMasterVariant(CreateProductRequest request, Product product) {
         var masterVariant = ProductVariant.builder()
                 .variantName("Default Variant")
                 .variantValue("Default Value")
-                .price(request.basePrice() != null ? request.basePrice() : 0.0)
+                .price(Objects.requireNonNullElse(request.basePrice(), 0.0))
                 .sku(request.baseSku())
-                .stockQuantity(request.baseStock() != null ? request.baseStock() : 0)
+                .stockQuantity(Objects.requireNonNullElse(request.baseStock(), 0))
                 .build();
         product.addVariant(masterVariant);
     }

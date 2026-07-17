@@ -17,10 +17,10 @@
         <module>ApiGateway</module>
         <module>UserService</module>
         <module>AuthService</module>
-        <module>ServiceDiscovery</module>
-        <module>UtilityResource</module>
+        <module>CoreService</module>
         <module>StoreService</module>
         <module>ProductService</module>
+        <module>ServiceDiscovery</module>
     </modules>
 
     <properties>
@@ -41,6 +41,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.jobayeralmahmud</groupId>
+            <artifactId>database-migration-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

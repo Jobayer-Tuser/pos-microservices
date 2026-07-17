@@ -1,15 +1,13 @@
 package me.jobayeralmahmud.product.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
-
-import java.sql.SQLException;
 
 @Component
 public class S4__CreateProductImagesTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema){
         schema.create("pos_product_images", table -> {
             table.uuid();
             table.foreignUuid("product_id").referencesTable("pos_products").onDeleteCascade();
@@ -17,11 +15,5 @@ public class S4__CreateProductImagesTable extends BaseMigration {
             table.bool("is_primary").defaultValue(false);
             table.integer("sort_order");
         });
-
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_product_images");
     }
 }

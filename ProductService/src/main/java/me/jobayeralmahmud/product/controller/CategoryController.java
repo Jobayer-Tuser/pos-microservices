@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-// @RestController
+@RestController
 @RequiredArgsConstructor
-// @RequestMapping("/dev/api/v1/categories")
+@RequestMapping("/dev/api/v1/categories")
 public class CategoryController extends BaseController {
 
     private final CategoryService categoryService;
@@ -38,5 +38,4 @@ public class CategoryController extends BaseController {
         categoryService.deleteCategory(id);
         return noContent("Category deleted successfully");
     }
-
 }

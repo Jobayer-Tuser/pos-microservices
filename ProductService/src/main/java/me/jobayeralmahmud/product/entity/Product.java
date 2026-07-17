@@ -3,6 +3,7 @@ package me.jobayeralmahmud.product.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jobayeralmahmud.library.utils.Slugify;
+import me.jobayeralmahmud.product.request.UpdateProductRequest;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -90,6 +91,14 @@ public class Product {
         images.remove(image);
         image.setProduct(null);
     }
+
+    public void update(UpdateProductRequest request) {
+        this.name = request.name();
+        this.brand = request.brand();
+        this.imageUrl = request.imageUrl();
+        this.description = request.description();
+    }
+
 
     @Override
     public boolean equals(Object o) {

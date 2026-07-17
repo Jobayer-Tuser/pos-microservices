@@ -1,7 +1,8 @@
 package me.jobayeralmahmud.product.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -18,10 +19,5 @@ public class S1__CreateCategoriesTable extends BaseMigration {
             table.text("description");
             table.string("slug").unique();
         });
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_product_categories");
     }
 }

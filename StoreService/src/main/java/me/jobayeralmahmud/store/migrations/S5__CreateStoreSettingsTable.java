@@ -1,7 +1,7 @@
 package me.jobayeralmahmud.store.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;

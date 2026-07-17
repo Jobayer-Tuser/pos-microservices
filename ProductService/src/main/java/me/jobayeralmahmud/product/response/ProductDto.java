@@ -1,8 +1,10 @@
 package me.jobayeralmahmud.product.response;
 
+import me.jobayeralmahmud.product.entity.Category;
 import me.jobayeralmahmud.product.entity.Product;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public record ProductDto(
@@ -24,9 +26,34 @@ public record ProductDto(
                 product.getDescription(),
                 product.getImageUrl(),
                 product.getBrand(),
-                product.getCategory() != null ? product.getCategory().getName() : null,
-                product.getVariants().stream().map(ProductVariantDto::fromEntity).toList(),
-                product.getImages().stream().map(ProductImageDto::fromEntity).toList()
+                getCategoryName(product),
+                getVariants(product),
+                getImages(product)
+
         );
+    }
+
+    public static List<ProductDto> fromEntity(List<Product> products) {
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .toList();
+    }
+
+    private static String getCategoryName(Product product) {
+        return Optional.ofNullable(product.getCategory())
+                .map(Category::getName)
+                .orElse(null);
+    }
+
+    private static List<ProductVariantDto> getVariants(Product product) {
+        return product.getVariants().stream()
+                .map(ProductVariantDto::fromEntity)
+                .toList();
+    }
+
+    private static List<ProductImageDto> getImages(Product product) {
+        return product.getImages().stream()
+                .map(ProductImageDto::fromEntity)
+                .toList();
     }
 }

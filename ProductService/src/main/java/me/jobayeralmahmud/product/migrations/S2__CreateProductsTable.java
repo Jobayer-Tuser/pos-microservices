@@ -1,7 +1,8 @@
 package me.jobayeralmahmud.product.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -23,10 +24,5 @@ public class S2__CreateProductsTable extends BaseMigration {
             table.string("brand", 64).nullable();
             table.timestamps();
         });
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_products");
     }
 }

@@ -1,7 +1,7 @@
 package me.jobayeralmahmud.store.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import me.jobayeralmahmud.store.enums.BillingCycle;
 import me.jobayeralmahmud.store.enums.PaymentMethod;
 import me.jobayeralmahmud.store.enums.PaymentStatus;

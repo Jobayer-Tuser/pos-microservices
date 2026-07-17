@@ -1,20 +1,19 @@
 package me.jobayeralmahmud.product.migrations;
 
-import me.jobayeralmahmud.library.migrations.BaseMigration;
-import me.jobayeralmahmud.library.migrations.Schema;
+import me.jobayeralmahmud.dbmigration.api.BaseMigration;
+import me.jobayeralmahmud.dbmigration.schema.Schema;
 import me.jobayeralmahmud.product.enums.ProductStatus;
 import org.springframework.stereotype.Component;
-
-import java.sql.SQLException;
 
 @Component
 public class S3__CreateProductVariantsTable extends BaseMigration {
 
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_product_variants", table -> {
             table.uuid();
-            table.foreignUuid("product_id").referencesTable("pos_products")
+            table.foreignUuid("product_id")
+                    .referencesTable("pos_products")
                     .onDeleteCascade().onUpdateCascade();
             table.string("sku").unique();
             table.string("variant_name");
@@ -22,12 +21,8 @@ public class S3__CreateProductVariantsTable extends BaseMigration {
             table.decimal("price");
             table.decimal("sell_price");
             table.integer("stock_quantity");
-            table.enumeration("status", ProductStatus.values()).defaultValue(ProductStatus.IN_STOCK.name());
+            table.enumeration("status", ProductStatus.values())
+                    .defaultValue(ProductStatus.IN_STOCK.name());
         });
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_product_variants");
     }
 }

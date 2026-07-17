@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>me.jobayeralmahmud</groupId>
-            <artifactId>UtilityResource</artifactId>
+            <artifactId>CoreService</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
