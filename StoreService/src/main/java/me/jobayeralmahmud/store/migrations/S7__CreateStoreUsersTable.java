@@ -9,7 +9,7 @@ import java.sql.SQLException;
 @Component
 public class S4__CreateStoreUsersTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_store_users", table -> {
             table.uuid();
             table.foreignUuid("store_id").referencesTable("pos_stores");

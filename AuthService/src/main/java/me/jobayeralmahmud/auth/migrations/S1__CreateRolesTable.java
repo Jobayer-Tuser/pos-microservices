@@ -1,25 +1,18 @@
-package me.jobayeralmahmud.auth.database.migrations;
+package me.jobayeralmahmud.auth;
 
 import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S1__CreateRolesTable extends BaseMigration {
 
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_roles", table -> {
             table.id();
             table.string("name", 32);
             table.timestamps();
         });
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_roles");
     }
 }

@@ -6,14 +6,16 @@ import me.jobayeralmahmud.auth.entity.Permission;
 import me.jobayeralmahmud.auth.entity.Role;
 import me.jobayeralmahmud.auth.repository.PermissionRepository;
 import me.jobayeralmahmud.auth.repository.RoleRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
-//@Component
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class DataSeeder /*implements CommandLineRunner*/ {
+public class DataSeeder implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;

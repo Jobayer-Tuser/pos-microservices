@@ -1,16 +1,14 @@
-package me.jobayeralmahmud.auth.database.migrations;
+package me.jobayeralmahmud.auth;
 
 import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S5__CreateVerificationTokenTable extends BaseMigration {
 
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_verification_token", table -> {
             table.id();
             table.foreignUuid("user_id").referencesTable("pos_users").onUpdateCascade().onDeleteRestrict();
@@ -20,10 +18,5 @@ public class S5__CreateVerificationTokenTable extends BaseMigration {
             table.dateTime("expired_at");
             table.dateTime("verified_at").nullable();
         });
-    }
-
-    @Override
-    public void down(Schema schema) throws SQLException {
-        schema.dropIfExists("pos_verification_tokens");
     }
 }
