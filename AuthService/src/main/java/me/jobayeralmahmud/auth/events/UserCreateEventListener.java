@@ -36,7 +36,7 @@ public class UserCreateEventListener {
             String token = verificationService.generateVerificationToken(event.getUser());
             String verificationUrl = buildVerificationUrl(event.getBaseUrl(), token);
 
-            emailService.sendVerificationEmail(event.getUser(), token, verificationUrl);
+            emailService.sendVerificationEmail(event.getUser(), verificationUrl);
 
             log.info("Verification email sent for user ID: {}", event.getUser().getId());
 

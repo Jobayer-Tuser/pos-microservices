@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth;
+package me.jobayeralmahmud.auth.migrations;
 
 import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;

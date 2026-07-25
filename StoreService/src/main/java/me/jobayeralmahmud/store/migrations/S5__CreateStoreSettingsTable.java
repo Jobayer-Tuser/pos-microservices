@@ -9,10 +9,10 @@ import java.sql.SQLException;
 @Component
 public class S5__CreateStoreSettingsTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_store_settings", table -> {
             table.uuid();
-            table.foreignUuid("store_id").referencesTable("pos_store");
+            table.foreignUuid("store_id").referencesTable("pos_stores");
             table.string("settings_key").unique();
             table.json("settings_value");
             table.timestamps();

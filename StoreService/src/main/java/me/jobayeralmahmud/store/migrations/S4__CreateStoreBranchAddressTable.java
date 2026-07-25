@@ -4,13 +4,11 @@ import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
-public class S2__CreateBranchAddressTable extends BaseMigration {
+public class S4__CreateStoreBranchAddressTable extends BaseMigration {
     @Override
     public void up(Schema schema) {
-        schema.create("pos_branches_address", table -> {
+        schema.create("pos_store_branch_addresses", table -> {
             table.uuid();
             table.foreignUuid("branch_id").referencesTable("pos_store_branches");
             table.string("address_line1");
@@ -24,7 +22,7 @@ public class S2__CreateBranchAddressTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_branches_address");
     }
 }

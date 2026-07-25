@@ -5,8 +5,6 @@ import me.jobayeralmahmud.dbmigration.schema.Schema;
 import me.jobayeralmahmud.store.enums.StoreStatus;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S3__CreateStoreBranchesTable extends BaseMigration {
     @Override
@@ -24,7 +22,7 @@ public class S3__CreateStoreBranchesTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_store_address");
     }
 }

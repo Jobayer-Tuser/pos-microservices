@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CustomLogoutHandler implements LogoutHandler {
+public class ApplicationLogoutHandler implements LogoutHandler {
 
     private final RedisService redisService;
     private final JwtService jwtService;

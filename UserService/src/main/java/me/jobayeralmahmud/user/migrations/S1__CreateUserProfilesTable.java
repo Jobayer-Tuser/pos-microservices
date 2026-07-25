@@ -4,13 +4,11 @@ import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S1__CreateUserProfilesTable extends BaseMigration {
 
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_user_profiles", table -> {
             table.id();
             table.foreignUuid("user_id");
@@ -33,7 +31,7 @@ public class S1__CreateUserProfilesTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_user_profiles");
     }
 }

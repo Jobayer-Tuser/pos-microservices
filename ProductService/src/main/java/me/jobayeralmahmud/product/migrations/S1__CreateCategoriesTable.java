@@ -5,12 +5,10 @@ import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S1__CreateCategoriesTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_product_categories", table -> {
             table.uuid();
             table.foreignUuid("parent_id").nullable()

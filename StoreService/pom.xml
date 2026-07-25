@@ -65,6 +65,11 @@
             <artifactId>CoreService</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>me.jobayeralmahmud</groupId>
+            <artifactId>database-migration-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>StoreService</finalName>

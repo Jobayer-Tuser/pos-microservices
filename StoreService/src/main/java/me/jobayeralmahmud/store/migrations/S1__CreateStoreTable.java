@@ -5,12 +5,10 @@ import me.jobayeralmahmud.dbmigration.schema.Schema;
 import me.jobayeralmahmud.store.enums.StoreStatus;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S1__CreateStoreTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_stores", table -> {
             table.uuid();
             table.uuid("owner_id");
@@ -19,8 +17,8 @@ public class S1__CreateStoreTable extends BaseMigration {
             table.string("email").nullable();
             table.string("phone_number");
             table.string("logo_url").nullable();
-            table.string("currency").nullable().defaultValue("BDT");
-            table.string("timezone").nullable().defaultValue("Asia/Dhaka");
+            table.string("currency").nullable().defaultValue("'BDT'");
+            table.string("timezone").nullable().defaultValue("'Asia/Dhaka'");
             table.bool("is_verified").defaultValue(false);
             table.string("description").nullable();
             table.string("verification_document_url").nullable();
@@ -31,7 +29,7 @@ public class S1__CreateStoreTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_stores");
     }
 }

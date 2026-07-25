@@ -1,84 +1,131 @@
 package me.jobayeralmahmud.library.exceptions;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Path;
-import me.jobayeralmahmud.library.response.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final Map<String, String> errors = new HashMap<>();
-
+    // 1. Handles validation for @RequestBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException exception) {
+    public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex) {
 
-        exception.getBindingResult().getFieldErrors().forEach(fieldError ->
-                errors.put(fieldError.getField(), fieldError.getDefaultMessage())
+        var filedErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        fieldError ->
+                                Objects.requireNonNull(fieldError.getDefaultMessage(), "Invalid value please check again!"),
+                        (existing, _) -> existing
+                ));
+
+        return createProblemDetail(
+                "Validation Failed",
+                "One or more request fields failed validation!",
+                filedErrors
         );
-
-        return ResponseEntity.badRequest()
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Validation failed",  errors));
     }
 
     // 2. Handles URL Parameter Validation (@PathVariable, @RequestParam)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(ConstraintViolationException ex) {
-        ex.getConstraintViolations().forEach(violation -> {
-            String fieldName = "";
-            for (Path.Node node : violation.getPropertyPath()) {
-                fieldName = node.getName();
-            }
-            errors.put(fieldName, violation.getMessage());
-        });
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        var violations = ex.getConstraintViolations()
+                .stream()
+                .collect(Collectors.toMap(
+                        violation -> violation.getPropertyPath().toString(),
+                        ConstraintViolation::getMessage,
+                        (existing, _) -> existing
+                ));
 
-        return ResponseEntity.badRequest()
-                .body(ApiResponse.error(400, "Parameter validation failed", errors));
+        return createProblemDetail(
+                "Parameter constraint failure!",
+                "URL parameters failed validation constraints.",
+                violations
+        );
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserExists(UserAlreadyExistsException ex) {
-        return buildResponse(HttpStatus.CONFLICT, "User name or email already exists.");
+    public ProblemDetail handleUserExists(UserAlreadyExistsException ex)
+    {
+        return createProblemDetail(
+                HttpStatus.CONFLICT,
+                "User already exists.",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Please check your email and password match or not or check the user role and permission assigned or not.");
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex)
+    {
+        return createProblemDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Authentication failed.",
+                "Invalid email, password or user role and permission not assigned."
+        );
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException ex) {
-        ex.printStackTrace(); // Added so we can see what actually failed
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one: " + ex.getMessage());
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(AuthenticationException ex)
+    {
+        return createProblemDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Unauthorize Access",
+                "Authentication token is invalid, expired or missing"
+        );
     }
 
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> authorizationDeniedException(AuthorizationDeniedException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN, "You don't have permission to access this resource.");
-    }
+    @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
+    public ProblemDetail handleAccessDenied(Exception ex)
+    {
+        log.error(ex.getMessage(), ex);
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> accessDeniedException(AccessDeniedException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+        return createProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Access Denied",
+                "You do not permission to access this resource."
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    public ProblemDetail handleGeneralException(Exception ex)
+    {
+        log.error(ex.getMessage(), ex);
+
+        return createProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "An unexpected internal error occurred. Please contact support if the issue persists."
+        );
     }
 
-    protected ResponseEntity<ApiResponse<Void>> buildResponse(HttpStatus httpStatus, String exceptionMessage) {
-        return ResponseEntity.status(httpStatus)
-                .body(ApiResponse.error(httpStatus.value(), exceptionMessage));
+    private ProblemDetail createProblemDetail(String title, String details, Map<String, String> fieldErrors)
+    {
+        var problem = createProblemDetail(HttpStatus.BAD_REQUEST, title, details);
+        problem.setProperty("fieldErrors", fieldErrors);
+        return problem;
+    }
+
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String details)
+    {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, details);
+        problem.setTitle(title);
+        return problem;
     }
 }

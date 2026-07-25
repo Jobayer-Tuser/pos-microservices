@@ -29,8 +29,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
         var requestUri = request.getRequestURI();
         boolean isLogoutPath = requestUri.contains(Routes.Auth.FULL_LOGOUT);
@@ -40,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if ( Optional.ofNullable(authHeader).isEmpty() || !authHeader.startsWith("Bearer ")) {
+        if (Optional.ofNullable(authHeader).isEmpty() || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,17 +56,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        setAuthenticationIfNot(request, jwtParser.getEmail(), jwtParser, redisService);
+        setAuthenticationIfNot(jwtParser.getEmail(), jwtParser,request, redisService);
 
         filterChain.doFilter(request, response);
     }
 
-    private void setAuthenticationIfNot(HttpServletRequest request, String email, JwtParser jwtParser, RedisService redisService) {
-        if (Optional.ofNullable(email).isPresent() && Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
+    private void setAuthenticationIfNot(
+            String email,
+            JwtParser jwtParser,
+            HttpServletRequest request,
+            RedisService redisService
+    ) {
+        if (Optional.ofNullable(email).isPresent() &&
+                Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).isEmpty()) {
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if (jwtParser.isValidToken(userDetails, redisService)) {
-                var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

@@ -6,8 +6,8 @@ import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoCon
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@EnableFeignClients
 @EnableJpaAuditing
+@EnableFeignClients
 @SpringBootApplication(exclude = {UserDetailsServiceAutoConfiguration.class}, scanBasePackages = {"me.jobayeralmahmud"})
 public class StoreServiceApplication {
     static void main(String[] args) {

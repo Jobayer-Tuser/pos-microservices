@@ -1,73 +1,60 @@
 package me.jobayeralmahmud.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.dto.request.CreateUserRequest;
-import me.jobayeralmahmud.auth.dto.request.UpdateUserRequest;
-import me.jobayeralmahmud.auth.dto.response.UserDto;
+import lombok.extern.slf4j.Slf4j;
 import me.jobayeralmahmud.auth.entity.Role;
 import me.jobayeralmahmud.auth.entity.User;
-import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
-import me.jobayeralmahmud.auth.mapper.UserMapper;
+import me.jobayeralmahmud.auth.events.UserCreatedEvent;
 import me.jobayeralmahmud.auth.repository.RoleRepository;
 import me.jobayeralmahmud.auth.repository.UserRepository;
-import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
+import me.jobayeralmahmud.auth.request.CreateUserRequest;
+import me.jobayeralmahmud.auth.request.UpdateUserRequest;
+import me.jobayeralmahmud.auth.response.UserDto;
+import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Implementation of UserService focusing on core CRUD operations.
- * Email verification is handled by UserVerificationService.
- * Authentication is handled by UserDetailsServiceImpl.
- * Pagination queries are handled by UserQueryService.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
     public UserDto createUser(CreateUserRequest request) {
-        log.debug("Creating user with email: {}", request.email());
-        Role role = null;
 
-        if (request.roleId() != null ) {
-           role = roleRepository.getReferenceById(request.roleId());
-        }
-        var user        = userMapper.toCreateEntity(request, role);
+        var user = request.toEntity(
+                passwordEncoder.encode(request.password()),
+                getRole(request.roleId())
+        );
+
         var storedUser  = userRepository.save(user);
+        triggerUserCreatedEvent(storedUser);
 
-        // Capture base URL from current request context before async processing
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .build()
-                .toUriString();
-
-//        eventPublisher.publishEvent(new UserCreatedEvent(this, storedUser, baseUrl));
-
-        log.info("User created successfully with ID: {}", storedUser.getId());
-        return userMapper.toSingleDto(storedUser);
+        return UserDto.toSingle(storedUser);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
         log.debug("Retrieving all users");
-        return userMapper.toMultipleDto(userRepository.findAll());
+        return UserDto.toMultiple(userRepository.findAll());
     }
 
     @Override
-    public User getUserById(UUID id) {
+    public User fetchUserById(UUID id) {
         log.debug("Retrieving user by ID: {}", id);
         return userRepository.findUserById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
@@ -75,32 +62,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public User fetchUserByEmail(String email) {
         log.debug("Retrieving user by email: {}", email);
-        return userRepository.findByEmailWithRoleAndPermissions(email)
+        return fetchUserByEmailWithRoleAndPermission(email)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         String.format("User not found with email: %s", email)));
     }
 
-    @Transactional
     @Override
+    public Optional<User> fetchUserByEmailWithRoleAndPermission(String email) {
+        return userRepository.findByEmailWithRoleAndPermissions(email);
+    }
+
+    @Override
+    @Transactional
     public UserDto updateUser(UUID id, UpdateUserRequest request) {
-        log.debug("Updating user with ID: {}", id);
+        var user = fetchUserById(id);
 
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourcesNotFoundException(
-                        String.format("User not found with ID: %d", id)));
-
-        user.setEmail(request.email());
-        var savedUser = userRepository.save(user);
+        user.update(request);
 
         log.info("User updated successfully with ID: {}", id);
-        return userMapper.toSingleDto(savedUser);
+        return UserDto.toSingle(userRepository.save(user));
     }
 
     @Override
     public boolean emailExists(String email) {
         log.debug("Checking if email exists: {}", email);
         return userRepository.existsByEmail(email);
+    }
+
+    private void triggerUserCreatedEvent(User user) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        eventPublisher.publishEvent(new UserCreatedEvent(this, user, baseUrl));
+    }
+
+    private Role getRole(Long roleId) {
+        if (roleId == null) return null;
+        return roleRepository.getReferenceById(roleId);
     }
 }

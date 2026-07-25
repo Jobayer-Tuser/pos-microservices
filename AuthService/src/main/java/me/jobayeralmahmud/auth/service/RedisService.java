@@ -2,7 +2,6 @@ package me.jobayeralmahmud.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -11,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisService {
 
-    private final StringRedisTemplate stringRedisTemplate;
     private final RedisTemplate <String, Object> redisTemplate;
     private static final String BLACKLIST_PREFIX = "blacklist:user:";
     private static final String USER_CONTEXT_PREFIX = "ctx:user:";

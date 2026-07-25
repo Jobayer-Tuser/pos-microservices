@@ -12,8 +12,9 @@ public class RouteValidator {
 
     public static final List<String> openApiEndPoints = List.of(
             Routes.LOGIN,
-            Routes.REGISTER,
             Routes.LOGOUT,
+            Routes.REGISTER,
+            Routes.EMAIL_VERIFY,
             Routes.TOKEN_REFRESH,
             Routes.EUREKA_SERVER
     );

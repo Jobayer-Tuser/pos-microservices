@@ -1,14 +1,13 @@
 package me.jobayeralmahmud.auth.config;
 
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.handler.CustomAccessDeniedHandler;
-import me.jobayeralmahmud.auth.handler.CustomLogoutHandler;
-import me.jobayeralmahmud.auth.handler.CustomLogoutSuccessHandler;
+import me.jobayeralmahmud.auth.handler.ApplicationAccessDeniedHandler;
+import me.jobayeralmahmud.auth.handler.ApplicationLogoutHandler;
+import me.jobayeralmahmud.auth.handler.ApplicationLogoutSuccessHandler;
 import me.jobayeralmahmud.auth.jwt.JwtAuthFilter;
 import me.jobayeralmahmud.auth.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -29,38 +28,42 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-        private final CustomLogoutHandler logoutHandler;
-        private final CustomAccessDeniedHandler accessDeniedHandler;
-        private final CustomLogoutSuccessHandler logoutSuccessHandler;
+        private final ApplicationLogoutHandler logoutHandler;
+        private final ApplicationAccessDeniedHandler accessDeniedHandler;
+        private final ApplicationLogoutSuccessHandler logoutSuccessHandler;
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
-                        UserDetailsServiceImpl userDetailsServiceImpl) {
+        public SecurityFilterChain securityFilterChain(
+                HttpSecurity http,
+                JwtAuthFilter authFilter,
+                UserDetailsServiceImpl userDetailsServiceImpl
+        ) {
                 return http
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(req -> req
-                                .requestMatchers(HttpMethod.POST,
-                                        Routes.Auth.FULL_LOGIN,
-                                        Routes.Auth.FULL_LOGOUT,
-                                        Routes.Auth.FULL_REGISTER,
-                                        Routes.Auth.FULL_TOKEN_REFRESH)
-                                .permitAll()
-                                .anyRequest().authenticated())
+                                        .requestMatchers(
+                                                Routes.Auth.FULL_LOGIN,
+                                                Routes.Auth.FULL_LOGOUT,
+                                                Routes.Auth.FULL_REGISTER,
+                                                Routes.Auth.FULL_TOKEN_REFRESH,
+                                                Routes.Auth.FULL_EMAIL_VERIFY
+                                        ).permitAll()
+                                        .anyRequest().authenticated())
                         .userDetailsService(userDetailsServiceImpl)
                         .exceptionHandling(e -> e
-                                .accessDeniedHandler(accessDeniedHandler)
-                                .authenticationEntryPoint(
-                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                                        .accessDeniedHandler(accessDeniedHandler)
+                                        .authenticationEntryPoint(
+                                                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                         .sessionManagement(session -> session
                                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                         .logout(l -> l
-                                .logoutUrl(Routes.Auth.BASE + Routes.Auth.LOGOUT)
-                                .deleteCookies("refreshToken")
-                                .addLogoutHandler(logoutHandler)
-                                .logoutSuccessHandler(logoutSuccessHandler)
-                                .clearAuthentication(true)
-                                .invalidateHttpSession(true))
+                                        .logoutUrl(Routes.Auth.BASE + Routes.Auth.LOGOUT)
+                                        .deleteCookies("refreshToken")
+                                        .addLogoutHandler(logoutHandler)
+                                        .logoutSuccessHandler(logoutSuccessHandler)
+                                        .clearAuthentication(true)
+                                        .invalidateHttpSession(true))
                         .build();
         }
 
@@ -70,8 +73,10 @@ public class SecurityConfig {
         }
 
         @Bean
-        public AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
-                        PasswordEncoder passwordEncoder) {
+        public AuthenticationManager authenticationManager(
+                UserDetailsService userDetailsService,
+                PasswordEncoder passwordEncoder
+        ) {
                 var provider = new DaoAuthenticationProvider(userDetailsService);
                 provider.setPasswordEncoder(passwordEncoder);
                 return new ProviderManager(provider);

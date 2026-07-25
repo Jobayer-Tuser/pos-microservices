@@ -14,12 +14,14 @@ public final class Routes {
         public static final String LOGOUT = "/logout";
         public static final String REGISTER = "/register";
         public static final String TOKEN_REFRESH = "/token-refresh";
+        public static final String EMAIL_VERIFY = "/verify-email";
 
         // Full paths for internal logic if needed
         public static final String FULL_LOGIN = BASE + LOGIN;
         public static final String FULL_LOGOUT = BASE + LOGOUT;
         public static final String FULL_REGISTER = BASE + REGISTER;
         public static final String FULL_TOKEN_REFRESH = BASE + TOKEN_REFRESH;
+        public static final String FULL_EMAIL_VERIFY = BASE + EMAIL_VERIFY;
     }
 
     public static final class Seed {

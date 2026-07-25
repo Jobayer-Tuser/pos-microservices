@@ -2,7 +2,6 @@ package me.jobayeralmahmud.product.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.library.controller.BaseController;
 import me.jobayeralmahmud.product.request.CreateProductRequest;
 import me.jobayeralmahmud.product.request.UpdateProductRequest;
 import me.jobayeralmahmud.product.response.ProductDto;
@@ -17,7 +16,7 @@ import java.util.UUID;
  @RestController
 @RequiredArgsConstructor
 // @RequestMapping("/dev/api/v1/products")
-public class ProductController extends BaseController {
+public class ProductController {
 
     private final ProductService productService;
 

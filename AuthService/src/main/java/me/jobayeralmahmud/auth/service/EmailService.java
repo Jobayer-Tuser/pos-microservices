@@ -3,7 +3,7 @@ package me.jobayeralmahmud.auth.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.dto.request.EmailProperties;
+import me.jobayeralmahmud.auth.request.EmailProperties;
 import me.jobayeralmahmud.auth.entity.User;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,7 +16,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final EmailProperties properties;
 
-    public void sendVerificationEmail(User user, String token, String verificationUrl) throws MessagingException {
+    public void sendVerificationEmail(User user, String verificationUrl) throws MessagingException {
         String subject = "User registration Verification email";
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -28,6 +28,7 @@ public class EmailService {
         helper.setText(generateEmailTemplate(verificationUrl, subject), true);
         mailSender.send(mimeMessage);
     }
+
     private String generateEmailTemplate(String verificationUrl, String subject) {
 
         return """

@@ -10,13 +10,11 @@ COPY AuthService/pom.xml AuthService/pom.xml
 COPY ServiceDiscovery/pom.xml ServiceDiscovery/pom.xml
 COPY StoreService/pom.xml StoreService/pom.xml
 COPY ProductService/pom.xml ProductService/pom.xml
-COPY UtilityResource/pom.xml UtilityResource/pom.xml
+COPY CoreService/pom.xml CoreService/pom.xml
 
 ARG MODULE_NAME
 # Fail if MODULE_NAME is not set
 RUN if [ -z "$MODULE_NAME" ]; then echo "MODULE_NAME is required" && exit 1; fi
-
-RUN mvn -B -e dependency:go-offline -pl ${MODULE_NAME} -am
 
 # Stage 2: Development (For Hot-Reloading)
 FROM dependencies AS dev
@@ -24,21 +22,21 @@ ARG MODULE_NAME
 ENV MODULE_NAME_ENV=${MODULE_NAME}
 
 WORKDIR /app
-COPY UtilityResource ./UtilityResource
+COPY CoreService ./CoreService
 COPY ${MODULE_NAME} ./${MODULE_NAME}
 
-# Install UtilityResource into the local Maven repo first (except for ServiceDiscovery), then run the requested module
+# Install CoreService into the local Maven repo first (except for ServiceDiscovery), then run the requested module
 CMD if [ "$MODULE_NAME_ENV" = "ServiceDiscovery" ]; then \
       mvn spring-boot:run -pl ${MODULE_NAME_ENV}; \
     else \
-      mvn install -pl UtilityResource -am && mvn spring-boot:run -pl ${MODULE_NAME_ENV}; \
+      mvn install -pl CoreService -am && mvn spring-boot:run -pl ${MODULE_NAME_ENV}; \
     fi
 
 # Stage 3: Build the application (Production)
 FROM dependencies AS builder
 ARG MODULE_NAME
 
-COPY UtilityResource/src UtilityResource/src
+COPY CoreService/src CoreService/src
 COPY ${MODULE_NAME}/src ${MODULE_NAME}/src
 RUN mvn -B -e clean package -pl ${MODULE_NAME} -am -DskipTests
 

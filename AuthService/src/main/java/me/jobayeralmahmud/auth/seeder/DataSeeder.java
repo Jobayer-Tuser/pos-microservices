@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth.database.seeder;
+package me.jobayeralmahmud.auth.seeder;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,14 +7,13 @@ import me.jobayeralmahmud.auth.entity.Role;
 import me.jobayeralmahmud.auth.repository.PermissionRepository;
 import me.jobayeralmahmud.auth.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
-@Component
-@RequiredArgsConstructor
 @Slf4j
+//@Component
+@RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
     private final RoleRepository roleRepository;

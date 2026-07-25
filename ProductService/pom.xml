@@ -69,23 +69,29 @@
             <artifactId>CoreService</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>me.jobayeralmahmud</groupId>
+            <artifactId>database-migration-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
+
     <build>
-    <finalName>ProductService</finalName>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <source>25</source>
-                <target>25</target>
-            </configuration>
-        </plugin>
-    </plugins>
+        <finalName>ProductService</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

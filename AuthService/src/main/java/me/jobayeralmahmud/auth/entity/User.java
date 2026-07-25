@@ -2,6 +2,7 @@ package me.jobayeralmahmud.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import me.jobayeralmahmud.auth.request.UpdateUserRequest;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -47,4 +48,9 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public void update(UpdateUserRequest request) {
+        this.email = request.email();
+        this.username = request.username();
+    }
 }

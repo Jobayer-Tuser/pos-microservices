@@ -15,12 +15,13 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    boolean existsByEmail(String email);
+
     @EntityGraph(attributePaths = "role")
     Optional<User> findByEmail(String email);
 
     @EntityGraph(value = "graph.userRole")
     Optional<User> findUserById(UUID id);
-    Boolean existsByEmail(String email);
 
     @Query("""
             SELECT u FROM User u
@@ -30,9 +31,18 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     """)
     List<User> cursorPaginationPattern(@Param("cursor") Long cursor, Pageable pageable);
 
-    @Query("select u from User u join fetch u.role r join fetch r.permissions where u.email = :email")
-    Optional<User> findByEmailWithPermissions(@Param("email") String email);
-
-    @Query("select u from User u left join fetch u.role r left join fetch r.permissions where u.email = :email")
+    @Query("""
+        select u from User u
+            left join fetch u.role r
+                left join fetch r.permissions
+                    where u.email = :email and u.emailVerifiedAt is not null
+    """)
     Optional<User> findByEmailWithRoleAndPermissions(@Param("email") String email);
+
+    @Query("""
+        SELECT u.emailVerifiedAt IS NOT NULL
+            FROM User u
+                WHERE u.id = :userId
+    """)
+    Optional<Boolean> isEmailVerified(@Param("id") UUID userId);
 }

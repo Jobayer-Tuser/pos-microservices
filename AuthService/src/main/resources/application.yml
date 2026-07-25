@@ -2,11 +2,9 @@ server:
   port: 9013
 
 spring:
-#  config:
-#    import: optional:file:.env[.properties]
-
   application:
     name: AuthService
+    api-prefix : ${APP_API_PREFIX:/dev/api/v1}
 
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:pos_auth}
@@ -25,7 +23,6 @@ spring:
         order_inserts: true
         format_sql: true
         ddl-auto: none
-
   jwt:
     secretKey: ${JWT_SECRET:54bwtwwUrbE9+Z4/4bjNPEEm71e+pYKuhEpS4XidXQc=}
     accessTokenExpiration: 900 # 5 M

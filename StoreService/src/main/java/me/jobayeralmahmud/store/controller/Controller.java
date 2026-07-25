@@ -1,13 +1,12 @@
 package me.jobayeralmahmud.store.controller;
 
-import me.jobayeralmahmud.library.controller.BaseController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class Controller extends BaseController {
+public class Controller {
     protected UUID currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

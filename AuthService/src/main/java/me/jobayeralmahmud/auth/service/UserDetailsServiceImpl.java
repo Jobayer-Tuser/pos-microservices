@@ -2,7 +2,6 @@ package me.jobayeralmahmud.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jobayeralmahmud.auth.repository.UserRepository;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,29 +19,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    /**
-     * Loads user details by username (email in this case) for Spring Security authentication.
-     *
-     * @param email the email (username) to search for
-     * @return UserDetails object containing user and authority information
-     * @throws UsernameNotFoundException if user with given email not found
-     */
-    @Override @NullMarked
+    @Override
+    @NullMarked
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.debug("Loading user by email: {}", email);
 
-        return userRepository.findByEmailWithPermissions(email)
-                .map(user -> {
-                    log.debug("User found: {}", email);
-                    return new SecuredUser(user);
-                })
+        return userService.fetchUserByEmailWithRoleAndPermission(email)
+                .map(SecuredUser::new)
                 .orElseThrow(() -> {
                     log.warn("User not found with email: {}", email);
-                    return new UsernameNotFoundException(
-                            String.format("User not found with email: %s", email));
+                    return new UsernameNotFoundException(String.format("User not found with email: %s", email));
                 });
     }
 }

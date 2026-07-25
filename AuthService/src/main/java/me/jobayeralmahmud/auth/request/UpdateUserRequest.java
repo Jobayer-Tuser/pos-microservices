@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth.dto.request;
+package me.jobayeralmahmud.auth.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

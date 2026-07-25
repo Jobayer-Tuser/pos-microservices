@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth.dto.response;
+package me.jobayeralmahmud.auth.response;
 
 import java.io.Serializable;
 import java.util.List;

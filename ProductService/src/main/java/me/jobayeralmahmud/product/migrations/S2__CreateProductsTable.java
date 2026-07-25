@@ -5,13 +5,11 @@ import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S2__CreateProductsTable extends BaseMigration {
 
     @Override
-    public void up(Schema schema) throws SQLException {
+    public void up(Schema schema) {
         schema.create("pos_products", table -> {
             table.uuid();
             table.uuid("store_id");

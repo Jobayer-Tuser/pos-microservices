@@ -2,7 +2,7 @@ package me.jobayeralmahmud.auth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.dto.request.LoginRequest;
+import me.jobayeralmahmud.auth.request.LoginRequest;
 import me.jobayeralmahmud.auth.entity.User;
 import me.jobayeralmahmud.auth.jwt.JwtConfig;
 import me.jobayeralmahmud.auth.jwt.JwtParser;
@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User getCurrentUser() {
-        return userService.getUserById(getCurrentUserId());
+        return userService.fetchUserById(getCurrentUserId());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
         Authentication authRequest = new UsernamePasswordAuthenticationToken(request.email(), request.password());
         authenticationManager.authenticate(authRequest);
 
-        var user = userService.getUserByEmail(request.email());
+        var user = userService.fetchUserByEmail(request.email());
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
                     "Jwt token is expired or not it is blacklisted please provide valid token.");
         }
 
-        var user = userService.getUserById(jwtParser.getSubject());
+        var user = userService.fetchUserById(jwtParser.getSubject());
         return jwtService.generateAccessToken(user);
     }
 

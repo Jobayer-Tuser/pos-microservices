@@ -2,7 +2,6 @@ package me.jobayeralmahmud.product.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.library.controller.BaseController;
 import me.jobayeralmahmud.product.request.CreateCategoryRequest;
 import me.jobayeralmahmud.product.request.UpdateCategoryRequest;
 import me.jobayeralmahmud.product.service.CategoryService;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dev/api/v1/categories")
-public class CategoryController extends BaseController {
+public class CategoryController {
 
     private final CategoryService categoryService;
 

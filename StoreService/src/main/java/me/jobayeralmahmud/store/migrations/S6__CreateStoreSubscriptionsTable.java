@@ -8,16 +8,13 @@ import me.jobayeralmahmud.store.enums.PaymentStatus;
 import me.jobayeralmahmud.store.enums.SubscriptionStatus;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
 public class S6__CreateStoreSubscriptionsTable extends BaseMigration {
     @Override
-    public void up(Schema schema) throws SQLException {
-
+    public void up(Schema schema) {
         schema.create("pos_store_subscriptions", table -> {
             table.uuid();
-            table.foreignUuid("store_id").referencesTable("pos_store");
+            table.foreignUuid("store_id").referencesTable("pos_stores");
             table.string("plan_name");
             table.double_("plan_price");
             table.enumeration("status", SubscriptionStatus.values()).defaultValue(SubscriptionStatus.ACTIVE.name());
@@ -31,7 +28,7 @@ public class S6__CreateStoreSubscriptionsTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_store_subscriptions");
     }
 }

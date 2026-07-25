@@ -4,13 +4,13 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jobayeralmahmud.auth.entity.User;
-import me.jobayeralmahmud.auth.jwt.JwtService;
 import me.jobayeralmahmud.auth.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserVerificationService {
 
-    private final JwtService jwtService;
+    private final UserService userService;
     private final UserRepository userRepository;
     private final VerificationTokenService verificationTokenService;
 
@@ -35,11 +35,11 @@ public class UserVerificationService {
     public String generateVerificationToken(User user) {
         log.debug("Generating verification token for user ID: {}", user.getId());
 
-        String jwtToken = jwtService.generateAccessToken(user);
-        verificationTokenService.addVerificationToken(user, jwtToken);
+        String verificationToken = UUID.randomUUID().toString();
+        verificationTokenService.addVerificationToken(user, verificationToken);
 
         log.info("Verification token generated for user ID: {}", user.getId());
-        return jwtToken;
+        return verificationToken;
     }
 
     /**
@@ -56,12 +56,8 @@ public class UserVerificationService {
         try {
             UUID userId = verificationTokenService.updateVerificationTokenStatus(token);
 
-            var user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException(
-                            String.format("User not found with ID: %d", userId)));
-
+            var user = userService.fetchUserById(userId);
             user.setEmailVerifiedAt(LocalDateTime.now());
-            userRepository.save(user);
 
             log.info("Email verified successfully for user ID: {}", userId);
 
@@ -78,14 +74,11 @@ public class UserVerificationService {
      * Checks if a user's email is verified.
      *
      * @param userId the user ID
-     * @return true if email is verified, false otherwise
+     * @return true/false if email is verified, false otherwise
      */
-    public boolean isEmailVerified(UUID userId) {
+    public Optional<Boolean> isEmailVerified(UUID userId) {
         log.debug("Checking email verification status for user ID: {}", userId);
-
-        return userRepository.findById(userId)
-                .map(user -> user.getEmailVerifiedAt() != null)
-                .orElse(false);
+        return userRepository.isEmailVerified(userId);
     }
 
     /**
@@ -98,12 +91,6 @@ public class UserVerificationService {
     @Transactional
     public String resendVerificationEmail(UUID userId) {
         log.debug("Resending verification email for user ID: {}", userId);
-
-        var user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        String.format("User not found with ID: %d", userId)));
-
-        // Invalidate old token and generate new one
-        return generateVerificationToken(user);
+        return generateVerificationToken(userService.fetchUserById(userId));
     }
 }

@@ -7,4 +7,5 @@ public class Routes {
     public static final String REGISTER = AUTHENTICATION + "/register";
     public static final String LOGOUT = AUTHENTICATION + "/logout";
     public static final String TOKEN_REFRESH = AUTHENTICATION + "/token-refresh";
+    public static final String EMAIL_VERIFY = AUTHENTICATION + "/verify-email";
 }

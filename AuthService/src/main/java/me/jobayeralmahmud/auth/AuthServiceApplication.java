@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @ConfigurationPropertiesScan
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
-@SpringBootApplication(scanBasePackages = { "me.jobayeralmahmud" })
+@SpringBootApplication(scanBasePackages = "me.jobayeralmahmud")
 public class AuthServiceApplication {
     static void main(String[] args) {
         SpringApplication.run(AuthServiceApplication.class, args);

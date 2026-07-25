@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth.dto.request;
+package me.jobayeralmahmud.auth.request;
 
 import lombok.Builder;
 import lombok.Data;

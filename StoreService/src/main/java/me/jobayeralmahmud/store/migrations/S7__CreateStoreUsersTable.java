@@ -4,10 +4,8 @@ import me.jobayeralmahmud.dbmigration.api.BaseMigration;
 import me.jobayeralmahmud.dbmigration.schema.Schema;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-
 @Component
-public class S4__CreateStoreUsersTable extends BaseMigration {
+public class S7__CreateStoreUsersTable extends BaseMigration {
     @Override
     public void up(Schema schema) {
         schema.create("pos_store_users", table -> {
@@ -22,7 +20,7 @@ public class S4__CreateStoreUsersTable extends BaseMigration {
     }
 
     @Override
-    public void down(Schema schema) throws SQLException {
+    public void down(Schema schema) {
         schema.dropIfExists("pos_store_users");
     }
 }

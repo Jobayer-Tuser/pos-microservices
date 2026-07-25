@@ -1,13 +1,13 @@
 package me.jobayeralmahmud.auth.service;
 
-import me.jobayeralmahmud.auth.dto.request.CreateUserRequest;
-import me.jobayeralmahmud.auth.dto.request.UpdateUserRequest;
-import me.jobayeralmahmud.auth.dto.response.UserDto;
 import me.jobayeralmahmud.auth.entity.User;
+import me.jobayeralmahmud.auth.request.CreateUserRequest;
+import me.jobayeralmahmud.auth.request.UpdateUserRequest;
+import me.jobayeralmahmud.auth.response.UserDto;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
@@ -31,9 +31,8 @@ public interface UserService {
      *
      * @param id the user ID
      * @return the user DTO
-     * @throws if user not found
      */
-    User getUserById(UUID id);
+    User fetchUserById(UUID id);
 
 
     /**
@@ -43,7 +42,15 @@ public interface UserService {
      * @return the user DTO
      * @throws ResourcesNotFoundException if user not found
      */
-    User getUserByEmail(String email);
+    User fetchUserByEmail(String email);
+
+    /**
+     * Fetch user by email with role and permissions
+     *
+     * @param email the user email
+     * @return optional user value
+     */
+    Optional<User> fetchUserByEmailWithRoleAndPermission(String email);
 
     /**
      * Updates an existing user.
@@ -53,7 +60,6 @@ public interface UserService {
      * @return the updated user DTO
      * @throws ResourcesNotFoundException if user not found
      */
-    @Transactional
     UserDto updateUser(UUID id, UpdateUserRequest request);
 
     /**
