@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.auth.service;
+package me.jobayeralmahmud.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,7 @@ import me.jobayeralmahmud.auth.repository.UserRepository;
 import me.jobayeralmahmud.auth.request.CreateUserRequest;
 import me.jobayeralmahmud.auth.request.UpdateUserRequest;
 import me.jobayeralmahmud.auth.response.UserDto;
+import me.jobayeralmahmud.auth.service.UserService;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;

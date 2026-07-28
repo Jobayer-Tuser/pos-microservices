@@ -29,7 +29,7 @@ public class AuthController extends Controller {
     private final UserVerificationService userVerificationService;
 
     @PostMapping(Routes.Auth.LOGIN)
-    @ApiResponseMessage("Successfully logged in")
+    @ApiResponseMessage("success.user.login")
     public JwtResponse login(
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
@@ -39,26 +39,29 @@ public class AuthController extends Controller {
     }
 
     @PostMapping(Routes.Auth.REGISTER)
-    @ApiResponseMessage("Successfully registered please verify your email.")
-    public UserDto register(@Valid @RequestBody CreateUserRequest request) {
+    @ApiResponseMessage("success.user.register")
+    public UserDto register(@Valid @RequestBody CreateUserRequest request)
+    {
         return userService.createUser(request);
     }
 
     @PostMapping(Routes.Auth.TOKEN_REFRESH)
-    public JwtResponse refresh(@CookieValue(value = "refreshToken") String refreshToken) {
+    public JwtResponse refresh(@CookieValue(value = "refreshToken") String refreshToken)
+    {
         var accessToken = authService.refreshToken(refreshToken);
         return new JwtResponse(accessToken);
     }
 
     @GetMapping(Routes.Auth.EMAIL_VERIFY)
-    public void verifyEmail(@RequestParam("token") String token) {
+    @ApiResponseMessage("success.user.verify-email")
+    public void verifyEmail(@RequestParam("token") String token)
+    {
         userVerificationService.verifyUserEmail(token);
     }
 
     @GetMapping(Routes.User.VALIDATED_PROFILE)
     @PreAuthorize("hasRole('USER')")
-    public HashMap<String, Object> getAuthenticatedUserProfile(
-            @AuthenticationPrincipal SecuredUser user) {
+    public HashMap<String, Object> getAuthenticatedUserProfile(@AuthenticationPrincipal SecuredUser user) {
         var data = new HashMap<String, Object>();
         data.put("role", user.getAuthorities());
         return data;

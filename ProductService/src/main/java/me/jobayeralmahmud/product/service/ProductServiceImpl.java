@@ -31,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
+    @Transactional
     public PaginateProduct<ProductDto> getAllProducts(UUID lastId, Pageable pageable) {
         var slice = productRepository.retrieveAllProducts(lastId, pageable);
         var products = slice.getContent();

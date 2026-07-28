@@ -1,7 +1,9 @@
-package me.jobayeralmahmud.auth.service;
+package me.jobayeralmahmud.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.jobayeralmahmud.auth.service.SecuredUser;
+import me.jobayeralmahmud.auth.service.UserService;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

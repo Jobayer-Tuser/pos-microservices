@@ -1,10 +1,11 @@
-package me.jobayeralmahmud.auth.service;
+package me.jobayeralmahmud.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.auth.entity.User;
 import me.jobayeralmahmud.auth.entity.VerificationToken;
 import me.jobayeralmahmud.auth.enums.VerificationType;
 import me.jobayeralmahmud.auth.repository.VerificationTokenRepository;
+import me.jobayeralmahmud.auth.service.VerificationTokenService;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

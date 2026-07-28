@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
- @RequestMapping(Routes.Auth.BASE)
+@RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class RoleSeederBaseController extends Controller {
 

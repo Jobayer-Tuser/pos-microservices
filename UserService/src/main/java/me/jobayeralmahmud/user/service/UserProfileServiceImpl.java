@@ -6,7 +6,6 @@ import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
 import me.jobayeralmahmud.library.response.CursorPageResponse;
 import me.jobayeralmahmud.user.controller.AuthClient;
 import me.jobayeralmahmud.user.entity.UserProfile;
-import me.jobayeralmahmud.user.mapper.UserProfileMapper;
 import me.jobayeralmahmud.user.repository.UserProfileRepository;
 import me.jobayeralmahmud.user.request.CreateUserProfileRequest;
 import me.jobayeralmahmud.user.request.CreateUserRequest;
@@ -30,16 +29,16 @@ import java.util.UUID;
 public class UserProfileServiceImpl implements UserProfileService {
 
     private final AuthClient authClient;
-    private final UserProfileMapper userProfileMapper;
     private final UserProfileRepository profileRepository;
 
     @Override
     @Transactional
     public UserProfileDto createUserProfile(CreateUserProfileRequest request) {
         var storedUser = createAndFetchAccountOrThrow(request);
-        var userProfile = userProfileMapper.requestToEntity(request, storedUser);
+        var userProfile = request.toEntity(storedUser);
+        var savedProfile = profileRepository.save(userProfile);
 
-        return userProfileMapper.entityToDto(profileRepository.save(userProfile));
+        return UserProfileDto.fromEntity(savedProfile);
     }
 
     @Override
@@ -49,10 +48,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         log.debug("Updating user profile with ID: {}", id);
 
         var existingProfile = findProfileByUserIdOrThrow(id);
-        var updatedProfile = userProfileMapper.updateProfile(existingProfile, request);
+        existingProfile.update(request);
 
         log.info("User profile updated successfully with ID: {}", id);
-        return userProfileMapper.toSingleDto(profileRepository.save(updatedProfile));
+        return UserProfileDto.fromEntity(existingProfile);
     }
 
     @Override

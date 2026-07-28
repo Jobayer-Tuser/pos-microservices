@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.auth.request.EmailProperties;
 import me.jobayeralmahmud.auth.entity.User;
+import me.jobayeralmahmud.library.utils.Messages;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class EmailService {
     private final EmailProperties properties;
 
     public void sendVerificationEmail(User user, String verificationUrl) throws MessagingException {
-        String subject = "User registration Verification email";
+        String subject = Messages.get("email.subject");
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");

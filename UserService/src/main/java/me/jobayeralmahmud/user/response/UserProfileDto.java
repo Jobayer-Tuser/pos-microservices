@@ -1,5 +1,7 @@
 package me.jobayeralmahmud.user.response;
 
+import me.jobayeralmahmud.user.entity.UserProfile;
+
 import java.util.UUID;
 
 public record UserProfileDto(
@@ -15,4 +17,20 @@ public record UserProfileDto(
         String permanentCity,
         String permanentCountry
 ) {
+
+    public static UserProfileDto fromEntity(UserProfile profile) {
+        return new UserProfileDto(
+                profile.getId(),
+                profile.getUserId(),
+                profile.getAge(),
+                profile.getFirstName(),
+                profile.getLastName(),
+                profile.getDisplayName(),
+                profile.getPhoneNumber(),
+                profile.getPermanentAddress(),
+                profile.getPermanentPostCode(),
+                profile.getPermanentCity(),
+                profile.getPermanentCountry()
+        );
+    }
 }

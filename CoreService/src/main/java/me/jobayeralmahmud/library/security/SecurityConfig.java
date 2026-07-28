@@ -1,5 +1,6 @@
-package me.jobayeralmahmud.store.security;
+package me.jobayeralmahmud.library.security;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,21 +14,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@ConditionalOnProperty(
+        prefix = "app.security",
+        name = "default-config.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class SecurityConfig {
 
-    private final SecurityHeaderFilter securityHeaderFilter;
-
-    public SecurityConfig(SecurityHeaderFilter securityHeaderFilter) {
-        this.securityHeaderFilter = securityHeaderFilter;
-    }
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityHeaderFilter filter) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .addFilterBefore(securityHeaderFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

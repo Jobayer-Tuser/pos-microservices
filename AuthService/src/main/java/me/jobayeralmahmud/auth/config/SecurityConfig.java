@@ -5,7 +5,7 @@ import me.jobayeralmahmud.auth.handler.ApplicationAccessDeniedHandler;
 import me.jobayeralmahmud.auth.handler.ApplicationLogoutHandler;
 import me.jobayeralmahmud.auth.handler.ApplicationLogoutSuccessHandler;
 import me.jobayeralmahmud.auth.jwt.JwtAuthFilter;
-import me.jobayeralmahmud.auth.service.UserDetailsServiceImpl;
+import me.jobayeralmahmud.auth.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -41,29 +41,29 @@ public class SecurityConfig {
                 return http
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(req -> req
-                                        .requestMatchers(
-                                                Routes.Auth.FULL_LOGIN,
-                                                Routes.Auth.FULL_LOGOUT,
-                                                Routes.Auth.FULL_REGISTER,
-                                                Routes.Auth.FULL_TOKEN_REFRESH,
-                                                Routes.Auth.FULL_EMAIL_VERIFY
-                                        ).permitAll()
-                                        .anyRequest().authenticated())
+                                .requestMatchers(
+                                        Routes.Auth.FULL_LOGIN,
+                                        Routes.Auth.FULL_LOGOUT,
+                                        Routes.Auth.FULL_REGISTER,
+                                        Routes.Auth.FULL_TOKEN_REFRESH,
+                                        Routes.Auth.FULL_EMAIL_VERIFY
+                                ).permitAll()
+                                .anyRequest().authenticated())
                         .userDetailsService(userDetailsServiceImpl)
                         .exceptionHandling(e -> e
-                                        .accessDeniedHandler(accessDeniedHandler)
-                                        .authenticationEntryPoint(
-                                                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                                .accessDeniedHandler(accessDeniedHandler)
+                                .authenticationEntryPoint(
+                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                         .sessionManagement(session -> session
-                                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                         .logout(l -> l
-                                        .logoutUrl(Routes.Auth.BASE + Routes.Auth.LOGOUT)
-                                        .deleteCookies("refreshToken")
-                                        .addLogoutHandler(logoutHandler)
-                                        .logoutSuccessHandler(logoutSuccessHandler)
-                                        .clearAuthentication(true)
-                                        .invalidateHttpSession(true))
+                                .logoutUrl(Routes.Auth.BASE + Routes.Auth.LOGOUT)
+                                .deleteCookies("refreshToken")
+                                .addLogoutHandler(logoutHandler)
+                                .logoutSuccessHandler(logoutSuccessHandler)
+                                .clearAuthentication(true)
+                                .invalidateHttpSession(true))
                         .build();
         }
 

@@ -2,6 +2,8 @@ package me.jobayeralmahmud.product.service;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
+import me.jobayeralmahmud.library.utils.Slugify;
+import me.jobayeralmahmud.library.exceptions.CategoryAlreadyExistsException;
 import me.jobayeralmahmud.product.entity.Category;
 import me.jobayeralmahmud.product.repository.CategoryRepository;
 import me.jobayeralmahmud.product.request.CreateCategoryRequest;
@@ -30,19 +32,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category createCategory(CreateCategoryRequest request) {
-        var category = Category.builder()
-                .name(request.name())
-                .description(request.description())
-                .parentId(request.parentId())
-                .build();
-        return repository.save(category);
+        if (repository.existsBySlug(Slugify.toSlug(request.name()))) {
+            throw new CategoryAlreadyExistsException("Category with name " + request.name() + " already exists");
+        }
+
+        return repository.save(request.toEntity());
     }
 
     @Override
     public Category updateCategory(UUID id, UpdateCategoryRequest request) {
         var category = findCategoryById(id);
-        category.setName(request.name());
-        category.setDescription(request.description());
+        category.update(request);
         return repository.save(category);
     }
 

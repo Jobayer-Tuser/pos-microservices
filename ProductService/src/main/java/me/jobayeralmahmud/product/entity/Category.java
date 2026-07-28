@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import me.jobayeralmahmud.library.utils.Slugify;
+import me.jobayeralmahmud.product.request.UpdateCategoryRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,5 +32,10 @@ public class Category {
     @PrePersist @PreUpdate
     public void generateSlug() {
         this.slug = Slugify.toSlug(name);
+    }
+
+    public void update(UpdateCategoryRequest request) {
+        this.name = request.name();
+        this.description = request.description();
     }
 }

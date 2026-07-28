@@ -1,32 +1,59 @@
 package me.jobayeralmahmud.gateway.exceptions;
 
-import me.jobayeralmahmud.gateway.dto.ApiResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BearerTokenException.class)
-    public ResponseEntity<ApiResponse<Void>> bearerTokenException(BearerTokenException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    @ExceptionHandler({
+            JwtException.class,
+            ExpiredJwtException.class,
+            BearerTokenException.class,
+    })
+    public ProblemDetail handleAuthenticationException(Exception ex) {
+        log.warn("Authentication failed due to : {} ", ex.getMessage());
+
+        record TokenError(String detail, String errorCode) {
+        }
+
+        TokenError error = switch (ex) {
+            case ExpiredJwtException e -> new TokenError(
+                    "Your token has expired. Please log in again or refresh your token.",
+                    "TOKEN_EXPIRED");
+            case BearerTokenException e -> new TokenError(
+                    e.getMessage(),
+                    "INVALID_HEADER");
+            default -> new TokenError(
+                    "The provided authentication token is invalid.",
+                    "INVALID_TOKEN");
+        };
+
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, error.detail(), error.errorCode());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-//        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    public ProblemDetail handleGeneralException(Exception ex) {
+        log.error(ex.getMessage(), ex);
+
+        return createProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Something went wrong while processing the request Please try again.",
+                "INTERNAL_SERVER_ERROR");
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Jwt token invalid or expired please regenerate a new one" + ex.getMessage());
-    }
-
-    private ResponseEntity<ApiResponse<Void>> buildResponse(HttpStatus httpStatus, String exceptionMessage) {
-        return ResponseEntity.status(httpStatus)
-                .body(ApiResponse.error(httpStatus.value(), exceptionMessage));
+    protected ProblemDetail createProblemDetail(HttpStatus status, String details, String errorCode) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, details);
+        problem.setProperty("errorCode", errorCode);
+        problem.setProperty("timestamp", Instant.now().toString());
+        return problem;
     }
 }

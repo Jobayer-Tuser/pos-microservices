@@ -1,43 +1,51 @@
 package me.jobayeralmahmud.store.controller;
 
 import lombok.RequiredArgsConstructor;
+import me.jobayeralmahmud.library.annotations.ApiResponseMessage;
 import me.jobayeralmahmud.store.request.StoreCreateRequest;
 import me.jobayeralmahmud.store.request.StoreUpdateRequest;
+import me.jobayeralmahmud.store.response.StoreDto;
 import me.jobayeralmahmud.store.service.StoreService;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-// @RestController
+@RestController
 @RequiredArgsConstructor
-// @RequestMapping("/dev/api/v1/store")
+@RequestMapping("/dev/api/v1/store")
 public class StoreController extends Controller {
 
     private final StoreService storeService;
 
     @GetMapping
-    public ResponseEntity<?> index(Pageable pageable) {
-        return ok(storeService.findAllStores(pageable), "Stores retrieved successfully");
+    @ApiResponseMessage("Stores retrieved successfully")
+    public Slice<StoreDto> index(Pageable pageable) {
+        return storeService.findAllStores(pageable);
     }
 
     @PostMapping
-    public ResponseEntity<?> store(@RequestBody StoreCreateRequest request) {
-        return created(storeService.createStore(request, currentUser()), "Store created successfully");
+    @ApiResponseMessage("Store created successfully")
+    public StoreDto store(@RequestBody StoreCreateRequest request) {
+        return storeService.createStore(request, currentUser());
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") UUID storeId, @RequestBody StoreUpdateRequest request) {
-        return ok(storeService.updateStore(storeId, request, currentUser()), "Store updated successfully");
+    @ApiResponseMessage("Store updated successfully")
+    public StoreDto update(@PathVariable("id") UUID storeId, @RequestBody StoreUpdateRequest request) {
+        return storeService.updateStore(storeId, request, currentUser());
     }
 
-    @GetMapping("show/{id}")
-    public ResponseEntity<?> show(@PathVariable("id") UUID storeId) {
-        return ok(storeService.findStoreById(storeId), "Store details retrieved successfully");
+    @GetMapping("/show/{id}")
+    @ApiResponseMessage("Store details retrieved successfully")
+    public StoreDto show(@PathVariable("id") UUID storeId) {
+        return storeService.findStoreById(storeId);
     }
 
-    public ResponseEntity<?> showStoreByOwner() {
-        return ok(storeService.getStoreByOwner(currentUser()), "Store details retrieved successfully");
+    @GetMapping("/find/owner")
+    @ApiResponseMessage("Store details retrieved successfully")
+    public StoreDto showStoreByOwner() {
+        return storeService.getStoreByOwner(currentUser());
     }
 }

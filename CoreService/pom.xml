@@ -34,5 +34,15 @@
             <artifactId>datafaker</artifactId>
             <version>2.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.13.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

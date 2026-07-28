@@ -3,7 +3,7 @@ package me.jobayeralmahmud.gateway.filter;
 import lombok.extern.slf4j.Slf4j;
 import me.jobayeralmahmud.gateway.dto.UserIdentityHeader;
 import me.jobayeralmahmud.gateway.exceptions.BearerTokenException;
-import me.jobayeralmahmud.gateway.service.JwtService;
+import me.jobayeralmahmud.gateway.service.JwtParser;
 import me.jobayeralmahmud.gateway.service.RedisService;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
@@ -24,18 +24,21 @@ import reactor.core.publisher.Mono;
 @Component
 public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGatewayFilterFactory.Config> {
 
-    private final JwtService jwtService;
+    private final JwtParser jwtParser;
+    private final RedisService redisService;
     private final RouteValidator routeValidator;
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private final RedisService redisService;
 
-    public PreGatewayFilterFactory(RouteValidator routeValidator,
-                                   JwtService jwtService, RedisService redisService) {
+    public PreGatewayFilterFactory(
+            JwtParser jwtParser,
+            RedisService redisService,
+            RouteValidator routeValidator
+    ) {
         super(Config.class);
-        this.jwtService = jwtService;
-        this.routeValidator = routeValidator;
+        this.jwtParser = jwtParser;
         this.redisService = redisService;
+        this.routeValidator = routeValidator;
     }
 
     /**
@@ -52,12 +55,12 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
 
             var headers = exchange.getRequest().getHeaders();
             if (!headers.containsHeader(HttpHeaders.AUTHORIZATION)) {
-                throw new BearerTokenException("Missing Authorization Header");
+                throwException("Missing Authorization Header");
             }
 
             var authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.trim().startsWith(BEARER_PREFIX)) {
-                throw new BearerTokenException("Missing Bearer Token or Invalid token format");
+                throwException("Missing Bearer Token or Invalid token format");
             }
 
             var token = authHeader.trim().replace(BEARER_PREFIX, "");
@@ -72,21 +75,29 @@ public class PreGatewayFilterFactory extends AbstractGatewayFilterFactory<PreGat
     private @NonNull Mono<Void> extractTokenAndMutateRequestWithUserInfo(
             ServerWebExchange exchange, GatewayFilterChain chain, String token) {
 
-        var jwtParser = jwtService.parseToken(token);
+        var jwtParser = this.jwtParser.parseToken(token);
 
         if (redisService.isBlackListed(jwtParser.getJti())) {
-            throw new BearerTokenException("Token is blacklisted or invalid");
+            throwException("Token is blacklisted or invalid");
         }
 
         var requestBuilder = exchange.getRequest().mutate();
 
-        var identityHeader = new UserIdentityHeader(jwtParser.getUserId(), jwtParser.getRole(),
-                jwtParser.getUserPermissions());
+        var identityHeader = new UserIdentityHeader(
+                jwtParser.getUserId(),
+                jwtParser.getRole(),
+                jwtParser.getUserPermissions()
+        );
         identityHeader.getHeaders().forEach(requestBuilder::header);
 
         var mutatedRequest = requestBuilder.build();
         return chain.filter(exchange.mutate().request(mutatedRequest).build());
     }
+
+    private static void throwException(String message) {
+        throw new BearerTokenException(message);
+    }
+
 
     /**
      * Configuration class for the filter factory.

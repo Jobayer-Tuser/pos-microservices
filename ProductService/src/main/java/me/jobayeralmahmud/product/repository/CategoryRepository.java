@@ -24,4 +24,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     void deleteById(UUID id);
     Optional<Category> findById(UUID id);
     Category getReferenceById(UUID id);
+
+    boolean existsBySlug(String slug);
 }

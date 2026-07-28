@@ -1,16 +1,21 @@
-package me.jobayeralmahmud.auth.service;
+package me.jobayeralmahmud.auth.service.impl;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import me.jobayeralmahmud.auth.request.LoginRequest;
 import me.jobayeralmahmud.auth.entity.User;
 import me.jobayeralmahmud.auth.jwt.JwtConfig;
 import me.jobayeralmahmud.auth.jwt.JwtParser;
 import me.jobayeralmahmud.auth.jwt.JwtService;
+import me.jobayeralmahmud.auth.request.LoginRequest;
+import me.jobayeralmahmud.auth.service.AuthService;
+import me.jobayeralmahmud.auth.service.RedisService;
+import me.jobayeralmahmud.auth.service.SecuredUser;
+import me.jobayeralmahmud.auth.service.UserService;
+import me.jobayeralmahmud.library.utils.Messages;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
             return securedUser.getUserId();
         }
 
-        throw new IllegalStateException("Cannot find user ID in the current security context");
+        throw new IllegalStateException(Messages.get("error.user.not.found"));
     }
 
     @Override
@@ -64,8 +69,7 @@ public class AuthServiceImpl implements AuthService {
         JwtParser jwtParser = jwtService.parseToken(refreshToken);
 
         if (jwtParser.isTokenExpired() || redisService.isBlackListed(jwtParser.getJti())) {
-            throw new BadCredentialsException(
-                    "Jwt token is expired or not it is blacklisted please provide valid token.");
+            throw new JwtException(Messages.get("error.jwt.token.expired"));
         }
 
         var user = userService.fetchUserById(jwtParser.getSubject());

@@ -5,11 +5,13 @@ import me.jobayeralmahmud.auth.config.Routes;
 import me.jobayeralmahmud.auth.entity.Permission;
 import me.jobayeralmahmud.auth.repository.PermissionRepository;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-// @RestController
-// @RequestMapping(Routes.Auth.BASE)
+@RestController
+@RequestMapping(Routes.Auth.BASE)
 @RequiredArgsConstructor
 public class PermissionsSeederBaseController extends Controller {
 

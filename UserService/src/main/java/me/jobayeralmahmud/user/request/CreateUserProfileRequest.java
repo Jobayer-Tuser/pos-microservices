@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import me.jobayeralmahmud.library.enums.Gender;
+import me.jobayeralmahmud.user.entity.UserProfile;
+import me.jobayeralmahmud.user.response.UserDto;
 import me.jobayeralmahmud.user.validation.ConfirmPassword;
 
 @ConfirmPassword
@@ -36,4 +38,15 @@ public record CreateUserProfileRequest(
         Gender gender,
         Long roleId
 ) {
+        public UserProfile toEntity(UserDto user) {
+                return UserProfile.builder()
+                        .userId(user.id())
+                        .age(age)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .displayName(displayName)
+                        .phoneNumber(phoneNumber)
+                        .gender(gender)
+                        .build();
+        }
 }

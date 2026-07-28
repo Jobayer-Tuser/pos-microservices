@@ -31,13 +31,8 @@ public class JwtService {
     }
 
     public JwtParser parseToken(String token) {
-        try {
-            Claims claims = getClaims(token);
-            return new JwtParser(claims, encryptSecretKey());
-        } catch (JwtException e) {
-            log.error("Toke might be expired or invalid: {}", e.getMessage());
-            return null;
-        }
+        Claims claims = getClaims(token);
+        return new JwtParser(claims, encryptSecretKey());
     }
 
     private Claims getClaims(String token) {

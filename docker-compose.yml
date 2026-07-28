@@ -25,9 +25,9 @@ x-depends-common: &depends-common
     condition: service_started
 
 x-libraries-common: &libraries-common
-  path: ./UtilityResource/src
+  path: ./CoreService/src
   action: sync+restart
-  target: /app/UtilityResource/src
+  target: /app/CoreService/src
 
 services:
   eureka-server:
