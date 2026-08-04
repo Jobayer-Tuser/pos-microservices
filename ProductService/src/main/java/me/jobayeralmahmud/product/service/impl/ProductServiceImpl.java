@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.product.service;
+package me.jobayeralmahmud.product.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
@@ -11,6 +11,8 @@ import me.jobayeralmahmud.product.request.CreateProductVariantRequest;
 import me.jobayeralmahmud.product.request.UpdateProductRequest;
 import me.jobayeralmahmud.product.response.PaginateProduct;
 import me.jobayeralmahmud.product.response.ProductDto;
+import me.jobayeralmahmud.product.service.CategoryService;
+import me.jobayeralmahmud.product.service.ProductService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

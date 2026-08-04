@@ -1,4 +1,4 @@
-package me.jobayeralmahmud.product.service;
+package me.jobayeralmahmud.product.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.library.exceptions.ResourcesNotFoundException;
@@ -9,6 +9,7 @@ import me.jobayeralmahmud.product.repository.CategoryRepository;
 import me.jobayeralmahmud.product.request.CreateCategoryRequest;
 import me.jobayeralmahmud.product.request.UpdateCategoryRequest;
 import me.jobayeralmahmud.product.response.CategoryDto;
+import me.jobayeralmahmud.product.service.CategoryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

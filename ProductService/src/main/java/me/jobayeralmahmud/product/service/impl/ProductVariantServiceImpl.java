@@ -1,8 +1,9 @@
-package me.jobayeralmahmud.product.service;
+package me.jobayeralmahmud.product.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.jobayeralmahmud.product.entity.ProductVariant;
 import me.jobayeralmahmud.product.repository.ProductVariantRepository;
+import me.jobayeralmahmud.product.service.ProductVariantService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
